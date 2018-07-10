@@ -26,7 +26,10 @@ y_train = np_utils.to_categorical(y_train)
 y_test = np_utils.to_categorical(y_test)
 num_classes = y_test.shape[1]
 # define the larger model
+
+
 def larger_model():
+
     # create model
     model = Sequential()
     model.add(Conv2D(30, (5, 5), input_shape=(1, 28, 28), activation='relu'))
@@ -39,12 +42,17 @@ def larger_model():
     model.add(Dense(50, activation='relu'))
     model.add(Dense(num_classes, activation='softmax'))
     # Compile model
-    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    model.compile(loss='categorical_crossentropy', optimizer='adam',
+                  metrics=['accuracy'])
     return model
+
+
 # build the model
 model = larger_model()
 # Fit the model
-model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=10, batch_size=200)
+model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=10,
+          batch_size=200)
+model.save('kar_model.h5')
 # Final evaluation of the model
 scores = model.evaluate(X_test, y_test, verbose=0)
 print("Large CNN Error: %.2f%%" % (100-scores[1]*100))
