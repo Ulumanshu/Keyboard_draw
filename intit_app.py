@@ -47,11 +47,15 @@ def prepare_image(image, target):
     # return the processed image
     return image
 
+
+@app.route("/", methods=('GET', 'POST'))
+def index():
+    return "Flask App!"
+
 @app.route("/home", methods=('GET', 'POST'))
 def home():
     # render homepage html from template
-    address = "index.html"
-    return render_template(address)
+    return render_template('index.html')
 
 
 @app.route("/predict", methods=["POST"])
