@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+    body{
+        text-align: center;
+    }
+    h1{
+        font-family: 'Amatic SC', cursive;
+        font-weight: normal;
+        color: #8ac640;
+        font-size: 2.5em;
+    }
+    </style>
+    {% if title %}
+        <title>Flask_Keras - {{ title }}</title>
+    {% else %}
+        <title>Flask_Keras</title>
+    {% endif %}
+</head>
+<body>
+    <h1>HAHAHA</h1>
+    {% block content %}
+    {% endblock content %}
+</body>
+</html>

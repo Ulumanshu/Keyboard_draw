@@ -1,6 +1,6 @@
 # USAGE
 # Start the server:
-# python init_app.py
+# python Flask_Keras.py
 # Submit a request via cURL:
 # curl -X POST -F image=@dog.jpg 'http://localhost:5000/predict'
 # Submit a a request via Python:
@@ -13,12 +13,14 @@ from keras.applications import imagenet_utils
 from PIL import Image
 import numpy as np
 import flask
-from flask import render_template
+from flask import Flask, render_template, url_for
 import io
 import tensorflow as tf
+from werkzeug.serving import run_simple
 
 # initialize our Flask application and the Keras model
 app = flask.Flask(__name__)
+app.debug = True
 model = None
 graph = None
 
@@ -47,15 +49,16 @@ def prepare_image(image, target):
     # return the processed image
     return image
 
-
-@app.route("/", methods=('GET', 'POST'))
-def index():
-    return "Flask App!"
-
-@app.route("/home", methods=('GET', 'POST'))
+@app.route("/")
+@app.route("/Home")
 def home():
     # render homepage html from template
-    return render_template('index.html')
+    return render_template('Home.html')
+
+@app.route("/About.html")
+def About():
+    # render homepage html from template
+    return render_template('About.html',  title="About.html")
 
 
 @app.route("/predict", methods=["POST"])
@@ -88,8 +91,6 @@ def predict():
         else:
             display = "Request failed"
 
-
-
     # return display placeholder for html embed
     return display
 
@@ -100,4 +101,5 @@ if __name__ == "__main__":
     print(("* Loading Keras model and Flask starting server..."
            "please wait until server has fully started"))
     load_model()
-    app.run()
+    run_simple("localhost", 5000, app, use_reloader=True, use_debugger=True,
+               use_evalex=True)
