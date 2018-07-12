@@ -17,7 +17,7 @@ from flask import Flask, render_template, url_for, request
 import io
 import tensorflow as tf
 from werkzeug.serving import run_simple
-import requests
+
 
 # initialize our Flask application and the Keras model
 app = flask.Flask(__name__)
