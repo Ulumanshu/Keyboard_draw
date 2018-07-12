@@ -13,10 +13,11 @@ from keras.applications import imagenet_utils
 from PIL import Image
 import numpy as np
 import flask
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, url_for, request
 import io
 import tensorflow as tf
 from werkzeug.serving import run_simple
+import requests
 
 # initialize our Flask application and the Keras model
 app = flask.Flask(__name__)
@@ -43,6 +44,7 @@ def prepare_image(image, target):
     # resize the input image and preprocess it
     image = image.resize(target)
     image = img_to_array(image)
+
     image = np.expand_dims(image, axis=0)
     image = imagenet_utils.preprocess_input(image)
 
@@ -60,8 +62,16 @@ def About():
     # render homepage html from template
     return render_template('About.html',  title="About.html")
 
+@app.route("/incoming", methods=['GET',"POST"])
+def incoming():
 
-@app.route("/predict", methods=["POST"])
+    #data = request.data
+
+    search = request.args.get("search")
+    page = request.form.get("page") #search +
+    return page
+
+@app.route("/predict", methods=['GET',"POST"])
 def predict():
     # initialize the data dictionary that will be returned from the
     # view
@@ -76,7 +86,6 @@ def predict():
 
             # preprocess the image and prepare it for classification
             image = prepare_image(image, target=(224, 224))
-
             # classify the input image and then initialize the list
             # of predictions to return to the client
             with graph.as_default():

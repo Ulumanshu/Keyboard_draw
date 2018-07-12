@@ -18,6 +18,7 @@ import tensorflow as tf
 
 # initialize our Flask application and the Keras model
 app = flask.Flask(__name__)
+
 model = None
 graph = None
 
@@ -52,7 +53,8 @@ def predict():
     # initialize the data dictionary that will be returned from the
     # view
     data = {"success": False}
-
+    IMAGE_PATH = "./images/horse.jpeg"
+    image = open(IMAGE_PATH, "rb").read()
     # ensure an image was properly uploaded to our endpoint
     if flask.request.method == "POST":
         if flask.request.files.get("image"):
@@ -62,6 +64,8 @@ def predict():
 
             # preprocess the image and prepare it for classification
             image = prepare_image(image, target=(224, 224))
+            image = image.tolist()
+            print( flask.jsonify(image) )
 
             # classify the input image and then initialize the list
             # of predictions to return to the client
@@ -90,4 +94,4 @@ if __name__ == "__main__":
     print(("* Loading Keras model and Flask starting server..."
            "please wait until server has fully started"))
     load_model()
-    app.run()
+    app.run(host='0.0.0.0', port=3000)

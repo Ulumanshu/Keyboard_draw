@@ -1,10 +1,10 @@
 {% extends "layout.html" %}
 {% block content %}
-    <div class="container">
+    <div>
         <h1> Here is an interesting quote for you: </h1>
         <p> "The limits of my language are the limits of my mind. All I know is
             what I have words for."
         </p>
-        <img src="./Flask_Keras/images/horse.jpeg">
+        <img src="{{ url_for('static', filename='dog.jpg') }}">
     </div>
 {% endblock content %}
