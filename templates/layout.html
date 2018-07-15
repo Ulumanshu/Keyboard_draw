@@ -1,11 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="viewport" width=device-width,
-          maximum-scale=1.0, user-scalable=0>
-    <style> body {padding: 20; margin: 15;} </style>
-
-
     <meta charset="UTF-8">
     <style>
     body{
@@ -25,7 +20,26 @@
     {% endif %}
 </head>
 <body>
-    {% block content %}
-    {% endblock content %}
+
+      <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+        <div class="container">
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarToggle">
+            <div class="navbar-nav mr-auto">
+              <a class="nav-item nav-link" href="/">Home</a>
+              <a class="nav-item nav-link" href="/About">About</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+    <main role="main" class="container">
+        <div class="col-md-8">
+            {% block content %}
+            {% endblock content %}
+        </div>
+    </main>
 </body>
 </html>

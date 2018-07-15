@@ -57,12 +57,12 @@ def home():
     # render homepage html from template
     return render_template('Home.html')
 
-@app.route("/About.html")
+@app.route("/About", methods=["GET"])
 def About():
     # render homepage html from template
-    return render_template('About.html',  title="About.html")
+    return render_template('About.html',  title="About")
 
-@app.route("/incoming", methods=['GET',"POST"])
+@app.route("/incoming", methods=["GET","POST"])
 def incoming():
 
     #data = request.data
@@ -71,7 +71,7 @@ def incoming():
     page = request.form.get("page") #search +
     return page
 
-@app.route("/predict", methods=['GET',"POST"])
+@app.route("/predict", methods=["GET","POST"])
 def predict():
     # initialize the data dictionary that will be returned from the
     # view
