@@ -1,5 +1,4 @@
 var vocab = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","1","2","3","4","5","6","7","8","9",":)", ":(","triangle","5star","scribble"];
-var index = -1;
 
 function clearDrawing() {
     var canvas = document.querySelector('#paint');
@@ -9,15 +8,12 @@ function clearDrawing() {
 
 function submitDrawing() {
 var canvas = document.querySelector('#paint');
-imgURI = canvas.toDataURL('image/jpeg', .5)
+imgURI = canvas.toDataURL('image/jpeg', 1)
 
 console.log("Submitting: " + imgURI);
 $.getJSON($SCRIPT_ROOT + '/predict', {
-  imgURI:  imgURI,
-  index: index,
-  vocab: JSON.stringify(vocab),
-
-}, function(data) {
+  imgURI:  imgURI
+  }, function(data) {
   $('#result').text(data.result);
   $('input[name=a]').focus().select();
 });

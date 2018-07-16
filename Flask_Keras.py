@@ -18,6 +18,7 @@ from flask import Flask, render_template, url_for, request, flash, redirect,\
 import io
 import tensorflow as tf
 from werkzeug.serving import run_simple
+import base64
 import json
 import sys
 
@@ -40,17 +41,12 @@ def load_model():
 
 
 def prepare_image(image, target):
-    # if the image mode is not RGB, convert it
-    if image.mode != "RGB":
-        image = image.convert("RGB")
 
     # resize the input image and preprocess it
     image = image.resize(target)
     image = img_to_array(image)
-
     image = np.expand_dims(image, axis=0)
     image = imagenet_utils.preprocess_input(image)
-
     # return the processed image
     return image
 
@@ -62,24 +58,26 @@ def home():
 
 @app.route("/About", methods=["GET"])
 def About():
-    # render homepage html from template
+    # render html from template
     return render_template('About.html',  title="About")
 
 @app.route("/predict", methods=["GET","POST"])
 def predict():
     # initialize the data dictionary that will be returned from the
     # view
-    display = None
-
+    result = {}
     # ensure an image was properly uploaded to our endpoint
 
     image = request.args.get('imgURI', 0, type=str)
-
+    data = image.split(',')[-1]
+    data = base64.b64decode(data.encode('ascii'))
+    g = open("temp.jpg", "wb")
+    g.write(data)
+    g.close()
     # read the image in PIL format
-    image = Image.open(io.StringIO(image))
-
+    image = Image.open("temp.jpg")
     # preprocess the image and prepare it for classification
-    image = prepare_image(image, target=(224, 224))
+    image = prepare_image(image, target=(28, 28))
     # classify the input image and then initialize the list
     # of predictions to return to the client
     with graph.as_default():
@@ -88,12 +86,12 @@ def predict():
         # loop over the results and add them to the list of
         # returned predictions
         for (imagenetID, label, prob) in results[0]:
-            display += ("{}: {:.4f}".format(label, prob)) + "/n"
+            result.append("{}: {:.4f}".format(label, prob))
 
 
 
     # return display placeholder for html embed
-    return jsonify(display=display)
+    return jsonify(result=result)
 
 # if this is the main thread of execution first load the model and
 # then start the server
