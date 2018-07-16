@@ -72,25 +72,28 @@ def predict():
     display = None
 
     # ensure an image was properly uploaded to our endpoint
+    if flask.request.method == "POST":
+        if flask.request.files.get("image"):
+            data = request.args.get('imgURI', 0, type=str)
+            # read the image in PIL format
+            image = flask.request.files["image"].read()
+            image = Image.open(io.BytesIO(image))
 
-    image = request.args.get('imgURI', 0, type=str)
+            # preprocess the image and prepare it for classification
+            image = prepare_image(image, target=(224, 224))
+            # classify the input image and then initialize the list
+            # of predictions to return to the client
+            with graph.as_default():
+                preds = model.predict(image)
+                results = imagenet_utils.decode_predictions(preds)
+                # loop over the results and add them to the list of
+                # returned predictions
+                for (imagenetID, label, prob) in results[0]:
+                    display += ("{}: {:.4f}".format(label, prob)) + "/n"
 
-    # read the image in PIL format
-    image = Image.open(io.StringIO(image))
-
-    # preprocess the image and prepare it for classification
-    image = prepare_image(image, target=(224, 224))
-    # classify the input image and then initialize the list
-    # of predictions to return to the client
-    with graph.as_default():
-        preds = model.predict(image)
-        results = imagenet_utils.decode_predictions(preds)
-        # loop over the results and add them to the list of
-        # returned predictions
-        for (imagenetID, label, prob) in results[0]:
-            display += ("{}: {:.4f}".format(label, prob)) + "/n"
-
-
+        # otherwise, the request failed
+        else:
+            display = "Request failed"
 
     # return display placeholder for html embed
     return jsonify(display=display)
