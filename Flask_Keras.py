@@ -7,9 +7,11 @@
 # python simple_request.py
 
 # import the necessary packages
-from keras.applications import ResNet50
+#from keras.applications import ResNet50
 from keras.preprocessing.image import img_to_array
 from keras.applications import imagenet_utils
+import keras
+from keras.models import load_model
 from PIL import Image
 import numpy as np
 import flask
@@ -35,7 +37,8 @@ def load_model():
     # pre-trained on ImageNet and provided by Keras, but you can
     # substitute in your own networks just as easily)
     global model
-    model = ResNet50(weights="imagenet")
+    # model = ResNet50(weights="imagenet")
+    model = keras.models.load_model('model/kar_model.h5')
     global graph
     graph = tf.get_default_graph()
 
@@ -46,7 +49,7 @@ def prepare_image(image, target):
     image = image.resize(target)
     image = img_to_array(image)
     image = np.expand_dims(image, axis=0)
-    image = imagenet_utils.preprocess_input(image)
+
     # return the processed image
     return image
 
@@ -56,7 +59,7 @@ def home():
     # render homepage html from template
     return render_template('Home.html')
 
-@app.route("/About", methods=["GET"])
+@app.route("/About")
 def About():
     # render html from template
     return render_template('About.html',  title="About")

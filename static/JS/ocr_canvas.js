@@ -59,8 +59,8 @@ return false;
     tmp_ctx.lineWidth = 15;
     tmp_ctx.lineJoin = 'round';
     tmp_ctx.lineCap = 'round';
-    tmp_ctx.strokeStyle = 'blue';
-    tmp_ctx.fillStyle = 'blue';
+    tmp_ctx.strokeStyle = 'black';
+    tmp_ctx.fillStyle = 'white';
     
     tmp_canvas.addEventListener('mousedown', function(e) {
         tmp_canvas.addEventListener('mousemove', onPaint, false);
