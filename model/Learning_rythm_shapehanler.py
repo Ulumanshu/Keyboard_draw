@@ -20,7 +20,7 @@ def model_make():
     epochs = 15
     # input image dimensions
     img_rows, img_cols = 28, 28
-    if True:
+    try:
         # the data, split between train and test sets
         (x_train, y_train), (x_test, y_test) = mnist.load_data()
         if K.image_data_format() == 'channels_first':
@@ -63,12 +63,11 @@ def model_make():
         score = model.evaluate(x_test, y_test, verbose=0)
         print('Test loss:', score[0])
         print('Test accuracy:', score[1])
-        model_json = model.to_json()
-        with open("kar_model.json", "w") as json_file:
+        with open("kar_model_json.json", "w") as json_file:
             json_file.write(model.to_json())
         model.save_weights("kar_model.h5")
         message = "success!"
-    else:
+    except:
         message = "fail!"
 
     return message
