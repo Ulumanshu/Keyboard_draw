@@ -7,22 +7,29 @@
 # python simple_request.py
 
 # import the necessary packages
-#from keras.applications import ResNet50
-from keras.preprocessing.image import img_to_array
-from keras.applications import imagenet_utils
+# from keras.applications import ResNet50
+# from keras.preprocessing.image import img_to_array
+# from keras.applications import imagenet_utils
 import keras
-from keras.models import load_model
+from keras.models import load_model, model_from_json
 from PIL import Image
 import numpy as np
 import flask
 from flask import Flask, render_template, url_for, request, flash, redirect,\
     jsonify
-import io
+# import io
 import tensorflow as tf
 from werkzeug.serving import run_simple
 import base64
-import json
-import sys
+from os import path
+import re
+from scipy.misc import imread, imresize
+
+global model, graph
+model, graph = load_model()
+
+
+
 
 
 # initialize our Flask application and the Keras model
@@ -32,24 +39,47 @@ model = None
 graph = None
 
 
-def load_model():
+def load_model_old():
     # load the pre-trained Keras model (here we are using a model
     # pre-trained on ImageNet and provided by Keras, but you can
     # substitute in your own networks just as easily)
-    global model
+
     # model = ResNet50(weights="imagenet")
     model = keras.models.load_model('model/kar_model.h5')
     global graph
     graph = tf.get_default_graph()
 
+def load_model():
+    # load the pre-trained Keras model (here we are using a model
+    # pre-trained on ImageNet and provided by Keras, but you can
+    # substitute in your own networks just as easily)
+
+    json_file = open("kar_model.json")
+    loaded_model_json = json_file.read()
+    json_file.close()
+    model = model_from_json(loaded_model_json)
+    #load weights into new model
+    model.load_weights(".kar_model.h5")
+    print("Loaded Model from disk")
+    #compile and evaluate loaded model
+    model.compile(loss='categorical_crossentropy', optimizer='adam',
+                  metrics=['accuracy'])
+    graph = tf.get_default_graph()
+
+    return model, graph
+
+
+
 
 def prepare_image(image, target):
 
     # resize the input image and preprocess it
-    image = image.resize(target)
-    image = img_to_array(image)
-    image = np.expand_dims(image, axis=0)
-
+    image = re.search(r'base64,(.*)', str(image)).group(1)
+    with open('output.png', 'wb') as output:
+        output.write(base64.b64decode(image))
+    image = imread('output.png', mode='L')
+    image = imresize(image, target)
+    image = image.reshape(1, 28, 28, 1)
     # return the processed image
     return image
 
@@ -68,33 +98,25 @@ def About():
 def predict():
     # initialize the data dictionary that will be returned from the
     # view
-    result = {}
-    # ensure an image was properly uploaded to our endpoint
+    results = None
 
     image = request.args.get('imgURI', 0, type=str)
-    data = image.split(',')[-1]
-    data = base64.b64decode(data.encode('ascii'))
-    g = open("temp.jpg", "wb")
-    g.write(data)
-    g.close()
     # read the image in PIL format
-    image = Image.open("temp.jpg")
     # preprocess the image and prepare it for classification
     image = prepare_image(image, target=(28, 28))
     # classify the input image and then initialize the list
     # of predictions to return to the client
     with graph.as_default():
         preds = model.predict(image)
-        results = imagenet_utils.decode_predictions(preds)
+        results = np.argmax(preds, axis=1)
         # loop over the results and add them to the list of
         # returned predictions
-        for (imagenetID, label, prob) in results[0]:
-            result.append("{}: {:.4f}".format(label, prob))
+        # answer = str(results[0])
 
 
 
     # return display placeholder for html embed
-    return jsonify(result=result)
+    return jsonify(results=results)
 
 # if this is the main thread of execution first load the model and
 # then start the server

@@ -8,14 +8,14 @@ function clearDrawing() {
 
 function submitDrawing() {
 var canvas = document.querySelector('#paint');
-imgURI = canvas.toDataURL('image/jpeg', 1)
+imgURI = canvas.toDataURL()
 
 console.log("Submitting: " + imgURI);
 $.getJSON($SCRIPT_ROOT + '/predict', {
   imgURI:  imgURI
   }, function(data) {
-  $('#result').text(data.result);
-  $('input[name=a]').focus().select();
+  $('#result').text(' Predicted Output: ' + data);
+
 });
 document.getElementById("result").innerHTML = "Working...";
 return false;
