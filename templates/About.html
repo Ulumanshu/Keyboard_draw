@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
+    <center>
     <div>
         <h1> Here is an interesting quote for you: </h1>
         <p> "The limits of my language are the limits of my mind. All I know is
@@ -7,4 +8,5 @@
         </p>
         <img src="{{ url_for('static', filename='images/dog.jpg') }}">
     </div>
+    </center>
 {% endblock content %}

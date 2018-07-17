@@ -15,7 +15,7 @@ from keras import backend as K
 def model_make():
 
 
-    batch_size = 200
+    batch_size = 50
     num_classes = 10
     epochs = 15
     # input image dimensions
@@ -50,10 +50,12 @@ def model_make():
         model.add(Flatten())
         model.add(Dense(128, activation='relu'))
         model.add(Dense(50, activation='relu'))
+        model.add(Dropout(0.3))
         model.add(Dense(num_classes, activation='softmax'))
         # Compile model
-        model.compile(loss='categorical_crossentropy', optimizer='adam',
-                   metrics=['accuracy'])
+        model.compile(loss='categorical_crossentropy',
+                      optimizer=keras.optimizers.Adadelta(),
+                      metrics=['accuracy'])
 
         model.fit(x_train, y_train,
                   batch_size=batch_size,

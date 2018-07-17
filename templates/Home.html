@@ -1,45 +1,43 @@
 {% extends "layout.html" %}
 {% block content %}
-<style>
-    html, body {
-        width: 100%;
-        height: 100%;
-    }
-    #sketch {
-        border: 5px solid black;
-        height: 280px;
-        width: 280px;
-        position: relative;
-    }
-    #tmp_canvas {
-        position: absolute;
-        left: 0px; right: 0;
-        bottom: 0; top: 0;
-        cursor: crosshair;
-    }
-</style>
 
-    <div class="draw_pad">
-        <h4 id="prompt">Enter any alphanumeric character</h4>
-        <div id="sketch">
-            <canvas id="paint"></canvas>
-        </div>
-        <br>
-        <button type="button" onclick="clearDrawing()">Clear</button>
-        <button type="button" onclick="submitDrawing()">Submit</button>
-        <br>
-        <h3 id="result"></h3>
-    </div>
+<div class="jumbotron">
+<h3 class="jumbotronHeading">Draw the digit inside this Box!</h3>
+<div class="slidecontainer">
+<p>Drag the slider to change the line width.</p>
+<input type="range" min="10" max="50" value="15" id="myRange">
+<p>Value: <span id="sliderValue"></span></p>
+</div>
+<div class="canvasDiv">
+<canvas id="canvas" width="280" height="280"></canvas>
+<br>
+<p style="text-align:center;">
+<a class="btn btn-success myButton" href="#" role="button">Predict</a>
+<a class="btn btn-primary" href="#" id="clearButton" role="button">Clear</a>
+</p>
+</div>
+</div>
+<div class="jumbotron">
+<p id="result">Get your prediction here!!!</p>
+</div>
 
-    <div>
-        <h1> Here machine learning is going to happen "someday...": </h1>
-        <p> "The limits of my language are the limits of my mind. All I know is
-            what I have words for."
-        </p>
-        <div>
-        <script type="text/javascript" src="{{ url_for('static',
-        filename='JS/ocr_canvas.js') }}"></script>
-        </div>
-    </div>
+</div> <!-- /container -->
+<script src="{{ url_for('static',filename='JS/index.js') }}"></script>
+<script type="text/javascript">
+$(".myButton").click(function(){
+var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+var canvasObj = document.getElementById("canvas");
+var img = canvasObj.toDataURL();
+$.ajax({
+type: "POST",
+url: $SCRIPT_ROOT + "/predict",
+data: img,
+success: function(data){
+$('#result').text(' Predicted Output: ' + data);
+}
+});
+});
+</script>
+
 
 {% endblock content %}

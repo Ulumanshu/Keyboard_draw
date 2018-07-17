@@ -42,12 +42,12 @@ def load_ze_model():
 
     return model, graph
 
-global model, graph
-model, graph = load_ze_model()
 
 # initialize our Flask application and the Keras model
 app = flask.Flask(__name__)
 app.debug = True
+global model, graph
+model, graph = load_ze_model()
 
 
 
@@ -64,6 +64,7 @@ def prepare_image(image, target):
         output.write(base64.b64decode(image))
     image = imread('output.png', mode='L')
     image = imresize(image, target)
+    print(image)
     image = image.reshape(1, 28, 28, 1)
     # return the processed image
     return image
@@ -83,24 +84,24 @@ def About():
 def predict():
     # initialize the data dictionary that will be returned from the
     # view
-
     results = None
-    image = request.args.get('imgURI', 0, type=str)
-    # preprocess the image and prepare it for classification
-    image = prepare_image(image, target=(28, 28))
-    # classify the input image and then initialize the list
-    # of predictions to return to the client
-    with graph.as_default():
-        preds = model.predict(image)
-        print(preds)
-        results = np.argmax(preds, axis=1)
-        print(np.argmax(preds))
-        results = str(results[0])
-        print(results)
-        # loop over the results and add them to the list of
-        # returned predictions
-        # answer = str(results[0])
-    # return display placeholder for html embed
+    if flask.request.method == "POST":
+        image = request.get_data()
+        # preprocess the image and prepare it for classification
+        image = prepare_image(image, target=(28, 28))
+        # classify the input image and then initialize the list
+        # of predictions to return to the client
+        with graph.as_default():
+            preds = model.predict(image)
+            print(preds)
+            results = np.argmax(preds, axis=1)
+            print(np.argmax(preds))
+            results = str(results[0])
+            print(results)
+            # loop over the results and add them to the list of
+            # returned predictions
+            # answer = str(results[0])
+        # return display placeholder for html embed
     return results
 
 # if this is the main thread of execution first load the model and
