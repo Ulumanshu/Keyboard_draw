@@ -4,21 +4,17 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <!-- jquery -->
     <script src="{{ url_for('static', filename='JS/jquery.min.js') }}"></script>
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
     <script>
     function page_loaded() {
     }
     var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     console.log($SCRIPT_ROOT);
     </script>
-
-
     {% if title %}
         <title>Flask_Keras - {{ title }}</title>
     {% else %}
@@ -26,21 +22,25 @@
     {% endif %}
 </head>
 <body>
-
-    <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
-        <div class="container">
-            <div class="navbar-nav mr-auto">
-              <a class="nav-item nav-link" href="/">Home</a>
-              <a class="nav-item nav-link" href="/About">About</a>
-            </div>
+    <div class="container">
+        <div class="header clearfix">
+            <nav>
+            <ul class="nav nav-pills pull-left">
+            <li role="presentation" class="active"><a href="/Home">Home</a></li>
+            <li role="presentation"><a href="/About">About</a></li>
+            </ul>
+            </nav>
         </div>
-    </nav>
+    </div>
+    <center>
+    <h3 class="text-muted">Karolio Ne_Protingas Ai</h3>
     {% block content %}
     {% endblock content %}
     <footer class="footer">
-    <p>Credits: http://www.python36.
-        com/deploy-keras-model-to-production-using-flask/, Siraj -
-        https://www.youtube.com/channel/UCWN3xxRkmTPmbKwht9FuE5A</p>
+    <p> Credits: </p>
+    <p> http://www.python36.com/deploy-keras-model-to-production-using-flask/</p>
+    <p>Siraj - https://www.youtube.com/channel/UCWN3xxRkmTPmbKwht9FuE5A</p>
     </footer>
+    </center>
 </body>
 </html>
