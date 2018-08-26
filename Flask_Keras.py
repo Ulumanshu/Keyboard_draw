@@ -13,7 +13,7 @@
 # from PIL import Image
 # import io
 import keras
-from keras.models import load_model, model_from_json
+from keras.models import load_model
 import numpy as np
 import flask
 from flask import Flask, render_template, url_for, request, flash, redirect,\
@@ -23,17 +23,18 @@ from werkzeug.serving import run_simple
 import base64
 import re
 from scipy.misc import imread, imresize
+import json
 
 def load_ze_model():
     # load the pre-trained Keras model (here we are using a model
     # pre-trained on ImageNet and provided by Keras, but you can
     # substitute in your own networks just as easily)
 
-    with open("model/kar_model_json.json") as json_file:
-        loaded_model_json = json_file.read()
-    model = model_from_json(loaded_model_json)
+    # with open("old/kar_model2.json") as json_file:
+    #     loaded_model_json = json_file.read()
+    # model = model_from_json(loaded_model_json)
     #load weights into new model
-    model.load_weights("model/kar_model.h5")
+    model = load_model("model/kar_model_balanced.h5")
     print("Loaded Model from disk")
     #compile and evaluate loaded model
     model.compile(loss='categorical_crossentropy', optimizer='adam',
@@ -48,12 +49,6 @@ app = flask.Flask(__name__)
 app.debug = True
 global model, graph
 model, graph = load_ze_model()
-
-
-
-
-
-
 
 
 def prepare_image(image, target):
@@ -95,9 +90,18 @@ def predict():
             preds = model.predict(image)
             print(preds)
             results = np.argmax(preds, axis=1)
-            print(np.argmax(preds))
-            results = str(results[0])
-            print(results)
+            results = str(results)
+            results = eval(results)
+            results = results[0]
+            print(type(results))
+            with open("./model/labels.json") as f:
+                labels_dict = json.load(f)
+                print(labels_dict)
+            for key, value in labels_dict.items():
+                print(key, value, results)
+                if value == results:
+                    results = key
+            print(type(results))
             # loop over the results and add them to the list of
             # returned predictions
             # answer = str(results[0])
