@@ -1,3 +1,4 @@
-old/
-Emnist_dir/
-.idea/
+/old
+/Emnist_dir
+/.idea
+/__pycache__
