@@ -18,7 +18,7 @@ train = data.flow_from_directory(
     target_size=(28, 28),
     color_mode='grayscale',
     class_mode='categorical',
-    batch_size=1000)
+    batch_size=800)
 train_map = train.class_indices
 print(train_map)
 
@@ -31,7 +31,7 @@ test = data.flow_from_directory(
     target_size=(28, 28),
     color_mode='grayscale',
     class_mode='categorical',
-    batch_size=1000)
+    batch_size=800)
 test_map = test.class_indices
 print(test_map)
 img_rows, img_cols = 28, 28
