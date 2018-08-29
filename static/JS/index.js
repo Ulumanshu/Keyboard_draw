@@ -1,4 +1,9 @@
 (function(){
+    $(".Correct_Button").hide("slow")
+    $(".Wrong_Button").hide("slow")
+    $("#input_wrong").hide("slow")
+    $(".Submit_Button").hide("slow")
+
     var canvas = document.querySelector( "#canvas" );
     var context = canvas.getContext( "2d" );
     canvas.width = 420;
@@ -38,7 +43,12 @@ function debug(){
     /* CLEAR BUTTON */
     var clearButton = $( "#clearButton" );
     clearButton.on( "click", function(){
-        context.clearRect( 0, 0, 280, 280 );
+        $(".Correct_Button").hide("slow")
+        $(".Wrong_Button").hide("slow")
+        $("#input_wrong").hide("slow")
+        $(".Submit_Button").hide("slow")
+        $('#result').text("Get your prediction here!!!");
+        context.clearRect( 0, 0, 420, 420 );
         context.fillStyle="black";
         context.fillRect(0,0,canvas.width,canvas.height);
     });
@@ -55,3 +65,5 @@ function debug(){
     });
     }
 }());
+////////////////////////////////////////////////////////////
+
