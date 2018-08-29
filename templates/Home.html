@@ -33,7 +33,7 @@
 
     var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     var canvasObj = document.getElementById("canvas");
-    
+    var class_data;
 
     function save_pic(event){
         event.preventDefault();
@@ -52,7 +52,7 @@
                 image: img,
                 correct_class: correct_class,
             },
-            success: print_result,
+            success: print_result_nobutt,
         });
         $("#input_wrong").hide("slow")
         $(".Submit_Button").hide("slow")
@@ -74,6 +74,18 @@
         $(".Wrong_Button").hide("slow");
         $('#result').text('Image saved');
         $(".Correct_Button").hide("slow");
+        var correct_class = class_data;
+        console.log(correct_class)
+        var img = canvasObj.toDataURL();
+        $.ajax({
+            type: "POST",
+            url: $SCRIPT_ROOT + "/save",
+            data:{
+                image: img,
+                correct_class: correct_class,
+            },
+            success: print_result_nobutt,
+        });
         
     }
     function wrong_prediction(event){
@@ -85,8 +97,29 @@
 
 
     }
+    
+    function print_result_nobutt(data){
+        console.log(data);
+        var a = 0;
+        var val1;
+        var val2;
+        data.forEach(function(element){
+            val1 += element;
+            val1 += " ";
+            a ++;
+            if(a > 2){
+                val2 += element;
+                val2 += " ";
+            };
+        });
+        console.log(val1, val2);
+        $('#result').text('File saved: ' + val1);
+        $('#result').text('File saved: ' + val1);
+    };
+    
 
     function print_result(data){
+        class_data = data; 
         $('#result').text(' Predicted Output: ' + data);
         $(".Correct_Button").show("slow")
         $(".Wrong_Button").show("slow")

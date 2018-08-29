@@ -92,6 +92,7 @@ def save():
         '/home/wooden/Desktop/Pycharm_projects/Flask_Keras/static/Emnist_dir/Own_classes/numbers/train']
     if flask.request.method == "POST":
         response = request.get_data()
+        pp.pprint(response)
         #pp.pprint(response)
         # pattern = re.compile(r"base64,?(.+)&correct_class=([a-zA-Z0-9]?)")
         # image = pattern.sub(r"\1", str(response))
@@ -103,9 +104,12 @@ def save():
         alt_image = request.form["image"]
         image = re.search(r'base64,(.+)', str(alt_image)).group(1)
         c_class = re.search(r'&correct_class=(.)', str(response)).group(1)
+        pp.pprint(re.search(r'&correct_class=(.+)', str(response)).group(1))
+        if len(re.search(r'&correct_class=(.+)', str(response)).group(1)) > 5:
+            c_class = re.search(r"&correct_class=\w\w\w\w\w\w_(.)", str(response)).group(1)
         # c_class = re.search(r"[a-zA-Z1-9]", str(c_class))
         #c_class = request.form["correct_class"]
-        #pp.pprint(c_class)
+        pp.pprint(c_class)
         # pp.pprint(alt_image)
         # pp.pprint("new " + image)
         # while len(image) % 4 != 0:
@@ -135,8 +139,8 @@ def save():
                 os.makedirs(e)
             cnt = len(next(os.walk(e))[2]) + 1
             fname = '%d.png' % cnt
-            #pp.pprint(e)
-            #pp.pprint(fname)
+            pp.pprint(e)
+            pp.pprint(fname)
             #image = imread('output.png', mode='L')
             #pp.pprint(image)
             with open(os.path.join(e, fname), 'wb') as output:
@@ -144,10 +148,10 @@ def save():
             #image.save(fname)
             results.append(e)
             results.append(fname)
-    print_str = ""
-    for e in results:
-        print_str += e + " "
-    return print_str
+
+    json_res = jsonify(results)
+
+    return json_res
 
 
 @app.route("/predict", methods=["GET", "POST"])
