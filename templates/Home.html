@@ -8,7 +8,7 @@
         <p>Value: <span id="sliderValue"></span></p>
     </div>
     <div class="canvasDiv" >
-        <canvas id="canvas" width="420" height="420" style="border:5px solid #FF4000;"></canvas>
+        <canvas id="canvas" width="420" height="420" style="border:5px solid #045FB4;"></canvas>
         <br>
         <p style="text-align:center;">
         <br />
@@ -22,7 +22,7 @@
         <a class="btn btn-success Correct_Button" href="#" role="button">Correct</a>
         <a class="btn btn-primary Wrong_Button" href="#" id="Wrong" role="button">Wrong</a><br />
         <br />
-        <input type="text" name="input_wrong" id="input_wrong" class="form-control" size="5" maxlength="1" /><br /><br />
+        <input type="text" pattern="[a-zA_Z1-9]" name="input_wrong" id="input_wrong" class="form-control" size="5" maxlength="1" /><br /><br />
         <a class="btn btn-success Submit_Button" href="#" role="button">Submit</a>
 
     </p>
@@ -43,7 +43,6 @@
     ///////////////////////////////////////////////////////////////////
     function save_pic(event){
         event.preventDefault();
-        $(".Wrong_Button").hide("slow")
         var correct_class = document.getElementById("input_wrong").value;
         console.log(correct_class)
         if (correct_class === ""){
@@ -76,7 +75,7 @@
     };
     ///////////////////////////////////////////////////////////////////
     function correct_prediction(event){
-        event.preventDefault()
+        event.preventDefault();
         $(".Wrong_Button").hide("slow");
         $('#result').text('Image saved');
         $(".Correct_Button").hide("slow");

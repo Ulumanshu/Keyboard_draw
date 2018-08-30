@@ -42,7 +42,8 @@
 function debug(){
     /* CLEAR BUTTON */
     var clearButton = $( "#clearButton" );
-    clearButton.on( "click", function(){
+    clearButton.on( "click", function(event){
+        event.preventDefault();
         $(".Correct_Button").hide("slow")
         $(".Wrong_Button").hide("slow")
         $("#input_wrong").hide("slow")
