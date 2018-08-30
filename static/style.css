@@ -77,3 +77,9 @@ margin-bottom: 7vh;
 display: flow-root;
 text-align: center;
 }
+#input_wrong{
+width: auto;
+display: inline-block;
+}
+}
+

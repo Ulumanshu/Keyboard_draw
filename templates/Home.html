@@ -7,10 +7,11 @@
         <input type="range" min="10" max="50" value="15" id="myRange">
         <p>Value: <span id="sliderValue"></span></p>
     </div>
-    <div class="canvasDiv">
-        <canvas id="canvas" width="420" height="420"></canvas>
+    <div class="canvasDiv" >
+        <canvas id="canvas" width="420" height="420" style="border:5px solid #FF4000;"></canvas>
         <br>
         <p style="text-align:center;">
+        <br />
         <a class="btn btn-success myButton" href="#" role="button">Predict</a>
         <a class="btn btn-primary" href="#" id="clearButton" role="button">Clear</a>
         </p>
@@ -21,7 +22,7 @@
         <a class="btn btn-success Correct_Button" href="#" role="button">Correct</a>
         <a class="btn btn-primary Wrong_Button" href="#" id="Wrong" role="button">Wrong</a><br />
         <br />
-        <input type="text" id="input_wrong" class="form-control" maxlenght="1" /><br />
+        <input type="text" name="input_wrong" id="input_wrong" class="form-control" size="5" maxlength="1" /><br /><br />
         <a class="btn btn-success Submit_Button" href="#" role="button">Submit</a>
 
     </p>
@@ -31,10 +32,15 @@
 <script src="{{ url_for('static',filename='JS/index.js') }}"></script>
 <script type="text/javascript">
 
+    ///////////////////////////////////////////////////////////////////
+    /// ***GLOBALS*** ///
+    ///////////////////////////////////////////////////////////////////
     var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     var canvasObj = document.getElementById("canvas");
-    var class_data;
-
+    var class_data;    
+    ///////////////////////////////////////////////////////////////////
+    /// ***Functions($)*** ///
+    ///////////////////////////////////////////////////////////////////
     function save_pic(event){
         event.preventDefault();
         $(".Wrong_Button").hide("slow")
@@ -43,7 +49,7 @@
         if (correct_class === ""){
             $('#result').text("enter correct class (1 symbol)");
             return 0
-        }
+        };
         var img = canvasObj.toDataURL();
         $.ajax({
             type: "POST",
@@ -54,10 +60,10 @@
             },
             success: print_result_nobutt,
         });
-        $("#input_wrong").hide("slow")
-        $(".Submit_Button").hide("slow")
+        $("#input_wrong").hide("slow");
+        $(".Submit_Button").hide("slow");
     };
-    
+    ///////////////////////////////////////////////////////////////////
     function predict_pic(event){
         event.preventDefault()
         var img = canvasObj.toDataURL();
@@ -65,17 +71,17 @@
             type: "POST",
             url: $SCRIPT_ROOT + "/predict",
             data: img,
-            success: print_result
+            success: print_result,
         });
     };
-    
+    ///////////////////////////////////////////////////////////////////
     function correct_prediction(event){
         event.preventDefault()
         $(".Wrong_Button").hide("slow");
         $('#result').text('Image saved');
         $(".Correct_Button").hide("slow");
         var correct_class = class_data;
-        console.log(correct_class)
+        console.log(correct_class);
         var img = canvasObj.toDataURL();
         $.ajax({
             type: "POST",
@@ -86,52 +92,53 @@
             },
             success: print_result_nobutt,
         });
-        
     }
+    ///////////////////////////////////////////////////////////////////
     function wrong_prediction(event){
-        event.preventDefault()
-        $(".Correct_Button").hide("slow")
+        event.preventDefault();
+        $(".Correct_Button").hide("slow");
         $('#result').text('What was it you were drawing?(valid: a-z, A-Z,1-9)');
-        $(".Submit_Button").show("slow")
-        $("#input_wrong").show("slow")
-
-
-    }
-    
+        $(".Submit_Button").show("slow");
+        $("#input_wrong").show("slow");
+        $(".Wrong_Button").hide("slow");
+    };
+    ///////////////////////////////////////////////////////////////////
     function print_result_nobutt(data){
         console.log(data);
         var a = 0;
-        var val1;
-        var val2;
+        var val1 = "";
+        var val2 = "";
         data.forEach(function(element){
+            a ++;
+            if(a < 3){
             val1 += element;
             val1 += " ";
-            a ++;
+            console.log("a<3", val1);
+            };
             if(a > 2){
                 val2 += element;
                 val2 += " ";
+                console.log("a>2", val2);
             };
         });
-        console.log(val1, val2);
-        $('#result').text('File saved: ' + val1);
-        $('#result').text('File saved: ' + val1);
+        console.log(val1, "-", val2);
+        $('#result').html('File saved: ' + val1 + "<br>" + ' File saved: ' + val2);
+        ///$('#result').text('File saved: ' + val2);
     };
-    
-
+    ///////////////////////////////////////////////////////////////////
     function print_result(data){
         class_data = data; 
         $('#result').text(' Predicted Output: ' + data);
-        $(".Correct_Button").show("slow")
-        $(".Wrong_Button").show("slow")
-
-    }
+        $(".Correct_Button").show("slow");
+        $(".Wrong_Button").show("slow");
+    };
     //////////////////////////////////////////////////////////////////
-    
+    /// ***BUTTONS*** ///
     //////////////////////////////////////////////////////////////////
-    $(".myButton").click(predict_pic)
-    $(".Correct_Button").click(correct_prediction)
-    $(".Wrong_Button").click(wrong_prediction)
-    $(".Submit_Button").click(save_pic)
+    $(".myButton").click(predict_pic);
+    $(".Correct_Button").click(correct_prediction);
+    $(".Wrong_Button").click(wrong_prediction);
+    $(".Submit_Button").click(save_pic);
     ///////////////////////////////////////////////////////////////////
 </script>
 {% endblock content %}
