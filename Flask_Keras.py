@@ -1,10 +1,7 @@
 # USAGE
 # Start the server:
 # python Flask_Keras.py
-# Submit a request via cURL:
-# curl -X POST -F image=@dog.jpg 'http://localhost:5000/predict'
-# Submit a a request via Python:
-# python simple_request.py
+# Open web link and save letters to pc:D
 
 # import the necessary packages
 # from keras.applications import ResNet50
@@ -92,7 +89,7 @@ def save():
         '/home/wooden/Desktop/Pycharm_projects/Flask_Keras/static/Emnist_dir/Own_classes/numbers/train']
     if flask.request.method == "POST":
         response = request.get_data()
-        pp.pprint(response)
+        #pp.pprint(response)
         #pp.pprint(response)
         # pattern = re.compile(r"base64,?(.+)&correct_class=([a-zA-Z0-9]?)")
         # image = pattern.sub(r"\1", str(response))
@@ -104,12 +101,12 @@ def save():
         alt_image = request.form["image"]
         image = re.search(r'base64,(.+)', str(alt_image)).group(1)
         c_class = re.search(r'&correct_class=(.)', str(response)).group(1)
-        pp.pprint(re.search(r'&correct_class=(.+)', str(response)).group(1))
+        #pp.pprint(re.search(r'&correct_class=(.+)', str(response)).group(1))
         if len(re.search(r'&correct_class=(.+)', str(response)).group(1)) > 5:
             c_class = re.search(r"&correct_class=\w\w\w\w\w\w_(.)", str(response)).group(1)
         # c_class = re.search(r"[a-zA-Z1-9]", str(c_class))
         #c_class = request.form["correct_class"]
-        pp.pprint(c_class)
+        #pp.pprint(c_class)
         # pp.pprint(alt_image)
         # pp.pprint("new " + image)
         # while len(image) % 4 != 0:
@@ -121,6 +118,7 @@ def save():
         upercase = string.ascii_uppercase
         lowercase = string.ascii_lowercase
         digits = string.digits
+        all_Valid = upercase + lowercase + digits
         if c_class in upercase:
             for e in subdir_uppercase:
                 e += "/letter_" + c_class
@@ -133,6 +131,10 @@ def save():
             for e in subdir_numbers:
                 e += "/number_" + c_class
                 save_dir.append(e)
+        elif c_class not in all_Valid:
+            error_msg = ["there is no such dir", c_class, "there is no such dir", c_class]
+            json_res = jsonify(error_msg)
+            return json_res
         #pp.pprint(save_dir)
         for e in save_dir:
             if os.path.exists(e) == False:
@@ -140,7 +142,7 @@ def save():
             cnt = len(next(os.walk(e))[2]) + 1
             fname = '%d.png' % cnt
             pp.pprint(e)
-            pp.pprint(fname)
+            #pp.pprint(fname)
             #image = imread('output.png', mode='L')
             #pp.pprint(image)
             with open(os.path.join(e, fname), 'wb') as output:
