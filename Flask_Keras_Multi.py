@@ -20,7 +20,7 @@ pp = pprint.PrettyPrinter(indent=4)
 
 def load_ze_model():
     # load the pre-trained Keras model
-    model = load_model("model/kar_model_balanced.h5")
+    model = load_model("model/kar_own_model_numbers.h5")
     print("Loaded Model from disk")
     # compile and evaluate loaded model
     model.compile(loss='categorical_crossentropy', optimizer='adam',
@@ -44,7 +44,7 @@ def prepare_image(image, target):
         output.write(base64.b64decode(image))
     image = imread('output.png', mode='L')
     image = imresize(image, target)
-    image = image.reshape(1, 28, 28, 1)
+    image = image.reshape(1, 42, 42, 1)
     # return the processed image
     return image
 
@@ -62,13 +62,10 @@ def About():
 @app.route("/save", methods=["GET","POST"])
 def save():
     results = []
-    subdir_lowercase = ['/home/wooden/Desktop/Pycharm_projects/Flask_Keras/static/Emnist_dir/Own_classes/lowercase/test', '/home/wooden/Desktop/Pycharm_projects/Flask_Keras/static/Emnist_dir/Own_classes/lowercase/train']
-    subdir_uppercase = [
-        '/home/wooden/Desktop/Pycharm_projects/Flask_Keras/static/Emnist_dir/Own_classes/uppercase/test',
-        '/home/wooden/Desktop/Pycharm_projects/Flask_Keras/static/Emnist_dir/Own_classes/uppercase/train']
-    subdir_numbers = [
-        '/home/wooden/Desktop/Pycharm_projects/Flask_Keras/static/Emnist_dir/Own_classes/numbers/test',
-        '/home/wooden/Desktop/Pycharm_projects/Flask_Keras/static/Emnist_dir/Own_classes/numbers/train']
+    filebase_dir = "/home/wooden/Desktop/Pycharm_projects/Flask_Keras/static/Emnist_dir/Own_classes/save"
+    dir_lowercase = '/lowercase'
+    dir_uppercase = '/uppercase'
+    dir_numbers = '/numbers'
     if flask.request.method == "POST":
         response = request.get_data()
         alt_image = request.form["image"]
@@ -82,32 +79,31 @@ def save():
         digits = string.digits
         all_Valid = upercase + lowercase + digits
         if c_class in upercase:
-            for e in subdir_uppercase:
-                e += "/letter_" + c_class
-                save_dir.append(e)
+            dir_end = "/letter_" + c_class
+            e = filebase_dir + dir_uppercase + dir_end
+            save_dir = e
         elif c_class in lowercase:
-            for e in subdir_lowercase:
-                e += "/letter_" + c_class
-                save_dir.append(e)
+            dir_end = "/letter_" + c_class
+            e = filebase_dir + dir_lowercase + dir_end
+            save_dir = e
         elif c_class in digits:
-            for e in subdir_numbers:
-                e += "/number_" + c_class
-                save_dir.append(e)
+            dir_end = "/number_" + c_class
+            e = filebase_dir + dir_numbers + dir_end
+            save_dir = e
         elif c_class not in all_Valid:
             error_msg = ["there is no such dir", c_class, "there is no such dir", c_class]
             json_res = jsonify(error_msg)
             return json_res
-        for e in save_dir:
-            if os.path.exists(e) == False:
-                os.makedirs(e)
-            cnt = len(next(os.walk(e))[2]) + 1
-            fname = '%d.png' % cnt
-            pp.pprint(e)
-
-            with open(os.path.join(e, fname), 'wb') as output:
-                output.write(base64.b64decode(image))
-            results.append(e)
-            results.append(fname)
+        if os.path.exists(save_dir) == False:
+            os.makedirs(save_dir)
+        cnt = len(next(os.walk(save_dir))[2]) + 1
+        fn_root = dir_end[1:] + "_" + str(cnt)
+        fname = '%s.png' % fn_root
+        pp.pprint(save_dir)
+        with open(os.path.join(save_dir, fname), 'wb') as output:
+            output.write(base64.b64decode(image))
+        results.append(save_dir)
+        results.append(fname)
     # return jsonified list for js parse, html display
     json_res = jsonify(results)
     return json_res
@@ -120,7 +116,7 @@ def predict():
     if flask.request.method == "POST":
         image = request.get_data()
         # preprocess the image and prepare it for classification
-        image = prepare_image(image, target=(28, 28))
+        image = prepare_image(image, target=(42, 42))
         # classify the input image and then initialize the list
         # of predictions to return to the client
         with graph.as_default():
@@ -131,7 +127,7 @@ def predict():
             results = results[0]
             # loop over the label_dict_tuples and
             # connect human meaning to prediction
-            with open("./model/labels.json") as f:
+            with open("./model/labels_own_numbers.json") as f:
                 labels_dict = json.load(f)
             for key, value in labels_dict.items():
                 if value == results:

@@ -1,9 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="jumbotron">
-    <h3 class="jumbotronHeading">Draw the digit inside this Box!</h3>
+    <h3 class="jumbotronHeading">***Draw the digit or letter inside this Box***</h3>
     <div class="slidecontainer">
-        <p>Drag the slider to change the line width.</p>
+        <p>***Line width***</p>
         <input type="range" min="10" max="50" value="15" id="myRange">
         <p>Value: <span id="sliderValue"></span></p>
     </div>
@@ -12,18 +12,18 @@
         <br>
         <p style="text-align:center;">
         <br />
-        <a class="btn btn-success myButton" href="#" role="button">Predict</a>
-        <a class="btn btn-primary" href="#" id="clearButton" role="button">Clear</a>
+        <a class="btn btn-success myButton" href="#" role="button">PREDICT</a>
+        <a class="btn btn-primary" href="#" id="clearButton" role="button">CLEAR</a>
         </p>
     </div>
 </div>
 <div class="jumbotron">
-    <p id="result">Get your prediction here!!!</p>
-        <a class="btn btn-success Correct_Button" href="#" role="button">Correct</a>
-        <a class="btn btn-primary Wrong_Button" href="#" id="Wrong" role="button">Wrong</a><br />
+    <p id="result">!!!Get your prediction here!!!</p>
+        <a class="btn btn-success Correct_Button" href="#" role="button">CORRECT</a>
+        <a class="btn btn-primary Wrong_Button" href="#" id="Wrong" role="button">WRONG</a><br />
         <br />
         <input type="text" pattern="[a-zA_Z1-9]" name="input_wrong" id="input_wrong" class="form-control" size="5" maxlength="1" /><br /><br />
-        <a class="btn btn-success Submit_Button" href="#" role="button">Submit</a>
+        <a class="btn btn-success Submit_Button" href="#" role="button">SUBMIT</a>
 
     </p>
 
@@ -101,7 +101,7 @@
         $("#input_wrong").show("slow");
         $(".Wrong_Button").hide("slow");
     };
-    ///////////////////////////////////////////////////////////////////
+    /*///////////////////////////////////////////////////////////////////
     function print_result_nobutt(data){
         console.log(data);
         var a = 0;
@@ -123,7 +123,19 @@
         console.log(val1, "-", val2);
         $('#result').html('File saved: ' + val1 + "<br>" + ' File saved: ' + val2);
         ///$('#result').text('File saved: ' + val2);
-    };
+    }; ///Used with Flask_Keras.py///
+    *////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
+    function print_result_nobutt(data){
+        console.log(data);
+        var val1 = "";
+        data.forEach(function(element){
+            val1 += element;
+            val1 += " ";
+        });
+        console.log(val1);
+        $('#result').html('File saved: ' + val1);
+    }; ///Used with Flask_Keras_Multi.py///
     ///////////////////////////////////////////////////////////////////
     function print_result(data){
         class_data = data; 
