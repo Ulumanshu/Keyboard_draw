@@ -62,7 +62,7 @@ def About():
 @app.route("/save", methods=["GET","POST"])
 def save():
     results = []
-    filebase_dir = "/home/wooden/Desktop/Pycharm_projects/Flask_Keras/static/Emnist_dir/Own_classes/save"
+    filebase_dir = "/home/wooden/Desktop/Pycharm_projects/Flask_Keras/static/Own_classes/save"
     dir_lowercase = '/lowercase'
     dir_uppercase = '/uppercase'
     dir_numbers = '/numbers'
