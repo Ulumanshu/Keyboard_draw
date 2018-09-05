@@ -78,13 +78,20 @@ class Train_Former:
 
         return print(Json_Self)
 
-    def filecopy(self):
 
-
+    def File_Copy(self):
         self.accountant()
+        self.Class_former()
+        self.Classifajar_former()
+        return print("Akapulko")
+
+
+    def Class_former(self):
+
         sjson = self.Json_Self
         comp_dict_s = {}
         comp_dict_t = {}
+
         for key_s, value_s in sjson["Save_dir"].items():
             comp_dict_s[key_s] = value_s.get("Min_fc")
         for key_t, value_t in sjson["Train_dir"].items():
@@ -120,8 +127,53 @@ class Train_Former:
                                     copied_file = Train_Former.read_file(save_dir, file)
                                     Train_Former.save_file(target_dir, file, copied_file)
 
-
         return print(copy_dict)
+
+
+    def Classifajar_former(self):
+
+        sjson = self.Json_Self
+        comp_dict_cl = {}
+        for key_s, value_s in sjson["Save_dir"].items():
+            comp_dict_cl[key_s] = value_s.get("Total_files")
+        classifajar_min = []
+        for e in comp_dict_cl.items():
+            classifajar_min.append(e[1])
+        clasifaj_count = min(classifajar_min)
+        for e in self.save_list:
+            dir_name_abr_root = re.search(r"([^/]+$)", str(e)).group(1)
+            dir_cnt, dir_ls = Train_Former.count_dir(e)
+            target_dir = self.train_dir + "/" + "Classifajar" + "/" + dir_name_abr_root
+            print(target_dir)
+            count_target, file_list = Train_Former.count_file(target_dir)
+            print(file_list)
+            print(range(count_target, clasifaj_count))
+            for c, i in zip(range(count_target, clasifaj_count), dir_ls):
+                save_dir = e + "/" + i
+                print("save_dir: " + save_dir)
+                i_fcount, file_list_i = Train_Former.count_file(save_dir)
+                #itera = 0
+                for file in file_list_i:
+                    print(file_list_i)
+                    file_nr = re.search(r"([^_]+$)", str(file)).group(1)
+                    file_nr = re.search(r"(.)", str(file_nr)).group(1)
+                    print("file nr: " + file_nr)
+                    print("nook: " + str(int((c // dir_cnt) + 1)))
+                    nook = str(int(c // dir_cnt))
+                    print(type(nook))
+                    if file_nr == nook:
+                        #while itera < 1:
+                        copied_file = Train_Former.read_file(save_dir, file)
+                        Train_Former.save_file(target_dir, file, copied_file)
+                        break
+
+                            # itera += 1
+                            # print(itera)
+
+
+
+
+        return print(comp_dict_cl)
 
         # s_lower = sjson["Save_dir"]["lowercase"]["Min_fc"]
         # s_upper = sjson["Save_dir"]["uppercase"]["Min_fc"]
@@ -175,5 +227,6 @@ class Train_Former:
 
 if __name__ == "__main__":
     ozka = Train_Former()
-    ozka.filecopy()
-
+    ozka.accountant()
+    ozka.File_Copy()
+    #ozka.Class_former()
