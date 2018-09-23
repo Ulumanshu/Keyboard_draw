@@ -18,23 +18,64 @@ import string
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
-def load_ze_model():
-    # load the pre-trained Keras model
-    model = load_model("model/kar_own_model_numbers.h5")
-    print("Loaded Model from disk")
-    # compile and evaluate loaded model
-    model.compile(loss='categorical_crossentropy', optimizer='adam',
-                  metrics=['accuracy'])
-    graph = tf.get_default_graph()
 
-    return model, graph
+class Zemodel:
+    @staticmethod
+    def loadmodel(path):
+        model = load_model(path)
+        model.compile(loss='categorical_crossentropy', optimizer='adam',
+                      metrics=['accuracy'])
+        print("Model from {} file loaded".format(path))
+        return model
+
+    def __init__(self, path):
+        self.model = self.loadmodel(path)
+        self.graph = tf.get_default_graph()
+
+    def zpredict(self, x):
+        with self.graph.as_default():
+            preds = self.model.predict(x)
+            results = np.argmax(preds, axis=1)
+            results = str(results)
+            results = eval(results)
+            results = results[0]
+            return results
 
 
 # initialize our Flask application and the Keras model
 app = flask.Flask(__name__)
 app.debug = True
-global model, graph
-model, graph = load_ze_model()
+
+model_C = Zemodel("model/models_multi/model_Classifajar.h5")
+model_u = Zemodel("model/models_multi/model_uppercase.h5")
+model_l = Zemodel("model/models_multi/model_lowercase.h5")
+model_n = Zemodel("model/models_multi/model_numbers.h5")
+
+# def load_ze_model():
+#     # load the pre-trained Keras model
+#     model_C = load_model("model/models_multi/model_Classifajar.h5")
+#     model_u = load_model("model/models_multi/model_uppercase.h5")
+#     model_l = load_model("model/models_multi/model_lowercase.h5")
+#     model_n = load_model("model/models_multi/model_numbers.h5")
+#     print("Loaded Model from disk")
+#     # compile and evaluate loaded model
+#     model_C.compile(loss='categorical_crossentropy', optimizer='adam',
+#                   metrics=['accuracy'])
+#     model_u.compile(loss='categorical_crossentropy', optimizer='adam',
+#                     metrics=['accuracy'])
+#     model_l.compile(loss='categorical_crossentropy', optimizer='adam',
+#                     metrics=['accuracy'])
+#     model_n.compile(loss='categorical_crossentropy', optimizer='adam',
+#                     metrics=['accuracy'])
+#     graph = tf.get_default_graph()
+#
+#     return model_C, model_u, model_l, model_n, graph
+
+
+
+
+# global model_C, model_u, model_l, model_n, graph
+# model_C, model_u, model_l, model_n, graph = load_ze_model()
 
 
 def prepare_image(image, target):
@@ -119,21 +160,42 @@ def predict():
         image = prepare_image(image, target=(42, 42))
         # classify the input image and then initialize the list
         # of predictions to return to the client
-        with graph.as_default():
-            preds = model.predict(image)
-            results = np.argmax(preds, axis=1)
-            results = str(results)
-            results = eval(results)
-            results = results[0]
-            # loop over the label_dict_tuples and
-            # connect human meaning to prediction
-            with open("./model/labels_own_numbers.json") as f:
+        #with graph.as_default():
+        results = model_C.zpredict(image)
+        # loop over the label_dict_tuples and
+        # connect human meaning to prediction
+        with open("./model/models_multi/labels_Classifajar.json") as f:
+            labels_dict = json.load(f)
+        for key, value in labels_dict.items():
+            if value == results:
+                results = key
+        if results == "numbers":
+            with open("./model/models_multi/labels_{}.json"
+                      .format(results)) as f:
                 labels_dict = json.load(f)
+            results = model_n.zpredict(image)
             for key, value in labels_dict.items():
                 if value == results:
                     results = key
-    # return display placeholder for html embed
-    return results
+        if results == "uppercase":
+            with open("./model/models_multi/labels_{}.json".format(
+                    results)) as f:
+                labels_dict = json.load(f)
+            results = model_u.zpredict(image)
+            for key, value in labels_dict.items():
+                if value == results:
+                    results = key
+        if results == "lowercase":
+            with open("./model/models_multi/labels_{}.json".format(
+                    results)) as f:
+                labels_dict = json.load(f)
+            results = model_l.zpredict(image)
+            for key, value in labels_dict.items():
+                if value == results:
+                    results = key
+
+        # return display placeholder for html embed
+        return results
 
 # if this is the main thread of execution first load the model and
 # then start the server
