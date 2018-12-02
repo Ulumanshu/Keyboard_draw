@@ -1,12 +1,11 @@
 # USAGE
 # Start the server:
-# python3 Flask_Keras.py
+# python3 Flask_Keras_Multi.py
 # Open web link and save letters to pc:D
 from keras.models import load_model
 import numpy as np
 import flask
-from flask import Flask, render_template, url_for, request, flash, redirect,\
-    jsonify
+from flask import Flask, render_template, url_for, request, flash, redirect, jsonify
 import tensorflow as tf
 from werkzeug.serving import run_simple
 import base64
@@ -16,8 +15,9 @@ import json
 import os
 import string
 import pprint
-pp = pprint.PrettyPrinter(indent=4)
+from model.train_former import Train_Former as T
 
+pp = pprint.PrettyPrinter(indent=4)
 
 class Zemodel:
     @staticmethod
@@ -41,42 +41,9 @@ class Zemodel:
             results = results[0]
             return results
 
-
 # initialize our Flask application and the Keras model
 app = flask.Flask(__name__)
 app.debug = True
-
-model_C = Zemodel("model/models_multi/model_Classifajar.h5")
-model_u = Zemodel("model/models_multi/model_uppercase.h5")
-model_l = Zemodel("model/models_multi/model_lowercase.h5")
-model_n = Zemodel("model/models_multi/model_numbers.h5")
-
-# def load_ze_model():
-#     # load the pre-trained Keras model
-#     model_C = load_model("model/models_multi/model_Classifajar.h5")
-#     model_u = load_model("model/models_multi/model_uppercase.h5")
-#     model_l = load_model("model/models_multi/model_lowercase.h5")
-#     model_n = load_model("model/models_multi/model_numbers.h5")
-#     print("Loaded Model from disk")
-#     # compile and evaluate loaded model
-#     model_C.compile(loss='categorical_crossentropy', optimizer='adam',
-#                   metrics=['accuracy'])
-#     model_u.compile(loss='categorical_crossentropy', optimizer='adam',
-#                     metrics=['accuracy'])
-#     model_l.compile(loss='categorical_crossentropy', optimizer='adam',
-#                     metrics=['accuracy'])
-#     model_n.compile(loss='categorical_crossentropy', optimizer='adam',
-#                     metrics=['accuracy'])
-#     graph = tf.get_default_graph()
-#
-#     return model_C, model_u, model_l, model_n, graph
-
-
-
-
-# global model_C, model_u, model_l, model_n, graph
-# model_C, model_u, model_l, model_n, graph = load_ze_model()
-
 
 def prepare_image(image, target):
     # resize the input image and preprocess it
@@ -103,7 +70,7 @@ def About():
 @app.route("/save", methods=["GET","POST"])
 def save():
     results = []
-    filebase_dir = "/home/wooden/Desktop/Pycharm_projects/Flask_Keras/static/Own_classes/save"
+    filebase_dir = T.root + "/static/Own_classes/save"
     dir_lowercase = '/lowercase'
     dir_uppercase = '/uppercase'
     dir_numbers = '/numbers'
@@ -149,7 +116,6 @@ def save():
     json_res = jsonify(results)
     return json_res
 
-
 @app.route("/predict", methods=["GET", "POST"])
 def predict():
     # if somebody accidently pushes a button "predict" href="/predict"
@@ -160,40 +126,35 @@ def predict():
         image = prepare_image(image, target=(42, 42))
         # classify the input image and then initialize the list
         # of predictions to return to the client
-        #with graph.as_default():
         results = model_C.zpredict(image)
         # loop over the label_dict_tuples and
         # connect human meaning to prediction
-        with open("./model/models_multi/labels_Classifajar.json") as f:
+        with open(T.root + "/model/models_multi/labels_Classifajar.json") as f:
             labels_dict = json.load(f)
         for key, value in labels_dict.items():
             if value == results:
                 results = key
         if results == "numbers":
-            with open("./model/models_multi/labels_{}.json"
-                      .format(results)) as f:
+            with open(T.root + "/model/models_multi/labels_{}.json".format(results)) as f:
                 labels_dict = json.load(f)
             results = model_n.zpredict(image)
             for key, value in labels_dict.items():
                 if value == results:
                     results = key
         if results == "uppercase":
-            with open("./model/models_multi/labels_{}.json".format(
-                    results)) as f:
+            with open(T.root + "/model/models_multi/labels_{}.json".format(results)) as f:
                 labels_dict = json.load(f)
             results = model_u.zpredict(image)
             for key, value in labels_dict.items():
                 if value == results:
                     results = key
         if results == "lowercase":
-            with open("./model/models_multi/labels_{}.json".format(
-                    results)) as f:
+            with open(T.root + "/model/models_multi/labels_{}.json".format(results)) as f:
                 labels_dict = json.load(f)
             results = model_l.zpredict(image)
             for key, value in labels_dict.items():
                 if value == results:
                     results = key
-
         # return display placeholder for html embed
         return results
 
@@ -202,4 +163,9 @@ def predict():
 if __name__ == "__main__":
     print(("* Loading Keras model and Flask starting server..."
            "please wait until server has fully started"))
-    run_simple("localhost", 5000, app, use_reloader=True, use_debugger=True, use_evalex=True)
+    model_C = Zemodel(T.root + "/model/models_multi/model_Classifajar.h5")
+    model_u = Zemodel(T.root + "/model/models_multi/model_uppercase.h5")
+    model_l = Zemodel(T.root + "/model/models_multi/model_lowercase.h5")
+    model_n = Zemodel(T.root + "/model/models_multi/model_numbers.h5")
+#    run_simple("localhost", 5000, app, use_reloader=True, use_debugger=True, use_evalex=True)
+    app.run(host='0.0.0.0', port=5000)
