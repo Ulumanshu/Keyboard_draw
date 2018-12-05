@@ -23,8 +23,9 @@ class Train_Former:
                  numbers="/numbers",
                  classifajar="/Classifajar"
                  ):
-        self.save_dir = self.root + save_dir
-        self.train_dir = self.root + train_dir
+        self.save_dir = '..' + save_dir
+        print(self.save_dir, str(Path(__file__)))
+        self.train_dir = '..' + train_dir
         self.uppercase = uppercase
         self.lowercase = lowercase
         self.numbers = numbers
