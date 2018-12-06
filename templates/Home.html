@@ -37,7 +37,7 @@
     ///////////////////////////////////////////////////////////////////
     var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     var canvasObj = document.getElementById("canvas");
-    var class_data;    
+    var class_data;
     ///////////////////////////////////////////////////////////////////
     /// ***Functions($)*** ///
     ///////////////////////////////////////////////////////////////////
@@ -91,7 +91,7 @@
             },
             success: print_result_nobutt,
         });
-    }
+    };
     ///////////////////////////////////////////////////////////////////
     function wrong_prediction(event){
         event.preventDefault();

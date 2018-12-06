@@ -10,7 +10,6 @@ import json
 from train_former import Train_Former as Former
 
 
-
 class Multi_Trainer(Former):
 
     seed = 7
@@ -56,7 +55,7 @@ class Multi_Trainer(Former):
         train, test = self.generators()
         model = self.large_model()
         train_map = train.class_indices
-        file = self.root + "/model/models_multi/labels_{}.json".format(name)
+        file = "./models_multi/labels_{}.json".format(name)
         with open(file, 'w') as f:
             json.dump(train_map, f)
         print(train_map)
@@ -66,7 +65,7 @@ class Multi_Trainer(Former):
             epochs=20,
             validation_data=test,
             validation_steps=100)
-        model.save(self.root + '/model/models_multi/model_{}.h5'.format(name))
+        model.save('./models_multi/model_{}.h5'.format(name))
         scores = model.evaluate_generator(test)
         del model
         print("Large CNN Error: %.2f%%" % (100 - scores[1] * 100))

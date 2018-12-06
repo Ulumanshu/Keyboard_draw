@@ -2,11 +2,111 @@
 {% block content %}
 
     <div class="jumbotron">
-        <h1> Here is an interesting quote for you: </h1>
-        <p> "The limits of my language are the limits of my mind. All I know is
-            what I have words for."
-        </p>
-        <img src="{{ url_for('static', filename='Images/profile.jpg') }}">
+        <div class="row">
+            <h1> *Keyboard_Draw* </h1>
+        </div>
+<!--    Description-->
+        <div class="row">
+            <div class="col-md-2">
+            <tr>
+            <td>
+                <div align="center">
+                    <img src="{{ url_for('static', filename='Images/profile.jpg') }}"
+                        width="210" height="210" style="border:5px solid #045FB4;">
+                </div>
+            </td>
+            </tr>
+            <tr>
+            <td>
+                <div align="center">
+                    <a class="btn btn-success Dataset_nfo" href="#" role="button">REFRESH DATASET NFO</a>
+                </div>
+            </td>
+            </tr>
+            </div>
+            <div class="col-md-10">
+                <p>
+                    I am very nice person, doing very nice things, and this is my very nice project.
+                        This THING after being filled with your hand drawn keyboard letters and numbers 
+                        should start recognizing them:)
+                </p>
+            </div>
+<!--    Buttons-->
+        <div class="row"></div>
+        </div>
+<script type="text/javascript">
+///////////////////////////////////////////////////////////////////
+/// ***GLOBALS*** ///
+///////////////////////////////////////////////////////////////////
+var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+///////////////////////////////////////////////////////////////////
+/// ***Functions($)*** ///
+///////////////////////////////////////////////////////////////////
+function refresh_dataset(event){
+    event.preventDefault()
+    var tag = "refresh_data"
+    $.ajax({
+        type: "POST",
+        url: $SCRIPT_ROOT + "/postman",
+        data: tag,
+        success: refresh_div,
+    });
+};
+///////////////////////////////////////////////////////////////////
+function refresh_div(event){
+    event.preventDefault();
+    window.location.reload(true);
+};
+//////////////////////////////////////////////////////////////////
+/// ***BUTTONS*** ///
+//////////////////////////////////////////////////////////////////
+$(".Dataset_nfo").click(refresh_dataset);
+///////////////////////////////////////////////////////////////////
+</script>
+<!--    Dataset overview-->
+        <div class="row" id="dataset_nfo">
+            <div class="col-md-12">
+                <div class="row">
+                {% for key, dict in value.items() %}
+                <div class="col-md-6">
+                  <tr>
+                    <td>
+                        <h3> {{ key }} </h3>
+                    </td>
+                  </tr>
+                   <tr>
+                    <td>
+                        {% for k, v in dict.items() %}
+                        <div class="col-md-3">
+                        <tr>
+                            <td>
+                                <p> {{ k }} </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                            {% for ky, va in v.items() %}
+                            <div class="col-md-12">
+                            <tr>
+                                <td>
+                                    <span> {{ ky }}: </span>
+                                </td>
+                                <td>
+                                    <span> {{ va }} </span>
+                                </td>
+                            </tr>
+                            </div>
+                            {% endfor %}
+                            </td>
+                        </tr>
+                        </div>
+                        {% endfor %}
+                    </td>
+                  </tr>
+                </div>
+                {% endfor %}
+                </div>
+            </div>
+        </div>
     </div>
-
 {% endblock content %}

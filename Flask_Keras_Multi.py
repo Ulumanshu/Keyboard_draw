@@ -19,6 +19,7 @@ from model.train_former import Train_Former as T
 
 pp = pprint.PrettyPrinter(indent=4)
 
+
 class Zemodel:
     @staticmethod
     def loadmodel(path):
@@ -65,12 +66,29 @@ def home():
 @app.route("/About")
 def About():
     # render html from template
-    return render_template('About.html',  title="About")
+    with open('./model/TrFo_Self.json') as f:
+        dataset = json.load(f)
+#    html_json = json.dump(dataset, indent=4, sort_keys=True)
+    return render_template('About.html', title="About", value=dataset)
+
+
+@app.route("/postman", methods=["GET","POST"])
+def postman():
+    # refresh dataset nfo
+    if flask.request.method == "POST":
+        response = request.get_data()
+        response = response.decode()
+        if str(response) == "refresh_data":
+            print('succes')
+            count = T(save_dir="./static/Own_classes/save", train_dir="./static/Own_classes/train",)
+            count.accountant()
+        print(str(response))
+    return 'succes'
 
 @app.route("/save", methods=["GET","POST"])
 def save():
     results = []
-    filebase_dir = T.root + "/static/Own_classes/save"
+    filebase_dir = "./static/Own_classes/save"
     dir_lowercase = '/lowercase'
     dir_uppercase = '/uppercase'
     dir_numbers = '/numbers'
@@ -129,27 +147,27 @@ def predict():
         results = model_C.zpredict(image)
         # loop over the label_dict_tuples and
         # connect human meaning to prediction
-        with open(T.root + "/model/models_multi/labels_Classifajar.json") as f:
+        with open("./model/models_multi/labels_Classifajar.json") as f:
             labels_dict = json.load(f)
         for key, value in labels_dict.items():
             if value == results:
                 results = key
         if results == "numbers":
-            with open(T.root + "/model/models_multi/labels_{}.json".format(results)) as f:
+            with open("./model/models_multi/labels_{}.json".format(results)) as f:
                 labels_dict = json.load(f)
             results = model_n.zpredict(image)
             for key, value in labels_dict.items():
                 if value == results:
                     results = key
         if results == "uppercase":
-            with open(T.root + "/model/models_multi/labels_{}.json".format(results)) as f:
+            with open("./model/models_multi/labels_{}.json".format(results)) as f:
                 labels_dict = json.load(f)
             results = model_u.zpredict(image)
             for key, value in labels_dict.items():
                 if value == results:
                     results = key
         if results == "lowercase":
-            with open(T.root + "/model/models_multi/labels_{}.json".format(results)) as f:
+            with open("./model/models_multi/labels_{}.json".format(results)) as f:
                 labels_dict = json.load(f)
             results = model_l.zpredict(image)
             for key, value in labels_dict.items():
@@ -163,9 +181,9 @@ def predict():
 if __name__ == "__main__":
     print(("* Loading Keras model and Flask starting server..."
            "please wait until server has fully started"))
-    model_C = Zemodel(T.root + "/model/models_multi/model_Classifajar.h5")
-    model_u = Zemodel(T.root + "/model/models_multi/model_uppercase.h5")
-    model_l = Zemodel(T.root + "/model/models_multi/model_lowercase.h5")
-    model_n = Zemodel(T.root + "/model/models_multi/model_numbers.h5")
+    model_C = Zemodel("./model/models_multi/model_Classifajar.h5")
+    model_u = Zemodel("./model/models_multi/model_uppercase.h5")
+    model_l = Zemodel("./model/models_multi/model_lowercase.h5")
+    model_n = Zemodel("./model/models_multi/model_numbers.h5")
 #    run_simple("localhost", 5000, app, use_reloader=True, use_debugger=True, use_evalex=True)
     app.run(host='0.0.0.0', port=5000)

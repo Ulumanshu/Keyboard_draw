@@ -1,7 +1,6 @@
 import os
 import re
 import json
-from pathlib import Path
 
 
 class Train_Former:
@@ -13,19 +12,16 @@ class Train_Former:
      and accountant creates an info .json file
      TrFo_Self.json"""
      
-    root = str(Path(__file__).parent.parent)
-     
     def __init__(self,
-                 save_dir="/static/Own_classes/save",
-                 train_dir="/static/Own_classes/train",
+                 save_dir="../static/Own_classes/save",
+                 train_dir="../static/Own_classes/train",
                  uppercase="/uppercase",
                  lowercase="/lowercase",
                  numbers="/numbers",
                  classifajar="/Classifajar"
                  ):
-        self.save_dir = '..' + save_dir
-        print(self.save_dir, str(Path(__file__)))
-        self.train_dir = '..' + train_dir
+        self.save_dir = save_dir
+        self.train_dir = train_dir
         self.uppercase = uppercase
         self.lowercase = lowercase
         self.numbers = numbers
@@ -48,7 +44,6 @@ class Train_Former:
         with open("TrFo_Self.json") as f:
             file = json.load(f)
         Json_Self = file
-
         return Json_Self
 
     def accountant(self):
@@ -87,7 +82,6 @@ class Train_Former:
                 Json_Self["Train_dir"][dir_name_abr][i] = file_cnt
         with open("TrFo_Self.json", 'w') as f:
             json.dump(Json_Self, f, indent=4, sort_keys=True)
-
         return print(Json_Self)
 
     def Class_former(self):
@@ -132,7 +126,6 @@ class Train_Former:
                                 if file_nr == str(c + 1):
                                     copied_file = Train_Former.read_file(save_dir, file)
                                     Train_Former.save_file(target_dir, file, copied_file)
-
         return print(copy_dict)
 
     def Classifajar_former(self):
