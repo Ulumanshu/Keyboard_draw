@@ -75,7 +75,6 @@ def About():
 @app.route("/postman", methods=["GET","POST"])
 def postman():
     # refresh dataset nfo
-    print(flask.request.method)
     if flask.request.method == "GET":
         response = dict(request.args)
         response = response['key'][0]
@@ -86,7 +85,6 @@ def postman():
             count.accountant()
             with open('./model/TrFo_Self.json') as f:
                 dataset = json.load(f)
-                print(render_template('refresh_dataset.html', value=dataset))
             return jsonify(success=True, data=render_template('refresh_dataset.html', value=dataset))
     return "just_in_case"
     
