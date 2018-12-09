@@ -10,7 +10,7 @@
             <div class="col-md-2">
             <tr>
             <td>
-                <div align="center">
+                <div align="center" style="margin:20px;">
                     <img src="{{ url_for('static', filename='Images/profile.jpg') }}"
                         width="210" height="210" style="border:5px solid #045FB4;">
                 </div>
@@ -18,17 +18,15 @@
             </tr>
             <tr>
             <td>
-                <div align="center">
+                <div align="center" style="margin:20px;">
                     <a class="btn btn-success Dataset_nfo" href="#" role="button">REFRESH DATASET NFO</a>
                 </div>
             </td>
             </tr>
             </div>
             <div class="col-md-10">
-                <p>
-                    I am very nice person, doing very nice things, and this is my very nice project.
-                        This THING after being filled with your hand drawn keyboard letters and numbers 
-                        should start recognizing them:)
+                <p style="text-align:left; text-indent: 4em; padding-top:50px;">
+                    I am very nice person, doing very nice things, and this is my very nice project. This THING after being filled with your hand drawn keyboard letters and numbers should start recognizing them:)
                 </p>
             </div>
 <!--    Buttons-->
@@ -44,18 +42,24 @@ var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 ///////////////////////////////////////////////////////////////////
 function refresh_dataset(event){
     event.preventDefault()
-    var tag = "refresh_data"
+    var tag = {"key": "refresh_data"}
     $.ajax({
-        type: "POST",
+        type: "GET",
         url: $SCRIPT_ROOT + "/postman",
         data: tag,
         success: refresh_div,
     });
+  //  $.get($SCRIPT_ROOT + "/postman").done( 
+  //  function(data){ 
+  //      $('.dataset_nfo').html(data);
+// )};
 };
 ///////////////////////////////////////////////////////////////////
-function refresh_div(event){
-    event.preventDefault();
-    window.location.reload(true);
+function refresh_div(data){
+    console.log("reloaded?", data);
+    $('#dataset_nfo').replaceWith(data.data);
+  //  window.location.reload(true);
+    console.log("reloaded?");
 };
 //////////////////////////////////////////////////////////////////
 /// ***BUTTONS*** ///
@@ -64,9 +68,9 @@ $(".Dataset_nfo").click(refresh_dataset);
 ///////////////////////////////////////////////////////////////////
 </script>
 <!--    Dataset overview-->
-        <div class="row" id="dataset_nfo">
+        <div class="row">
             <div class="col-md-12">
-                <div class="row">
+                <div class="row" id="dataset_nfo">
                 {% for key, dict in value.items() %}
                 <div class="col-md-6">
                   <tr>

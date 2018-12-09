@@ -10,6 +10,7 @@ import json
 from train_former import Train_Former as Former
 
 
+
 class Multi_Trainer(Former):
 
     seed = 7

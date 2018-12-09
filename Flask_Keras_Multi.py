@@ -45,6 +45,7 @@ class Zemodel:
 # initialize our Flask application and the Keras model
 app = flask.Flask(__name__)
 app.debug = True
+ROOT = str(app.root_path)
 
 def prepare_image(image, target):
     # resize the input image and preprocess it
@@ -68,23 +69,27 @@ def About():
     # render html from template
     with open('./model/TrFo_Self.json') as f:
         dataset = json.load(f)
-#    html_json = json.dump(dataset, indent=4, sort_keys=True)
     return render_template('About.html', title="About", value=dataset)
 
 
 @app.route("/postman", methods=["GET","POST"])
 def postman():
     # refresh dataset nfo
-    if flask.request.method == "POST":
-        response = request.get_data()
-        response = response.decode()
+    print(flask.request.method)
+    if flask.request.method == "GET":
+        response = dict(request.args)
+        response = response['key'][0]
         if str(response) == "refresh_data":
-            print('succes')
-            count = T(save_dir="./static/Own_classes/save", train_dir="./static/Own_classes/train",)
+            count = T(save_dir="./static/Own_classes/save",
+                train_dir="./static/Own_classes/train",
+                json_dir="./model/")
             count.accountant()
-        print(str(response))
-    return 'succes'
-
+            with open('./model/TrFo_Self.json') as f:
+                dataset = json.load(f)
+                print(render_template('refresh_dataset.html', value=dataset))
+            return jsonify(success=True, data=render_template('refresh_dataset.html', value=dataset))
+    return "just_in_case"
+    
 @app.route("/save", methods=["GET","POST"])
 def save():
     results = []

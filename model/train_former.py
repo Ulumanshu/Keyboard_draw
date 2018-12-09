@@ -15,6 +15,7 @@ class Train_Former:
     def __init__(self,
                  save_dir="../static/Own_classes/save",
                  train_dir="../static/Own_classes/train",
+                 json_dir="./",
                  uppercase="/uppercase",
                  lowercase="/lowercase",
                  numbers="/numbers",
@@ -22,6 +23,7 @@ class Train_Former:
                  ):
         self.save_dir = save_dir
         self.train_dir = train_dir
+        self.json_dir = json_dir
         self.uppercase = uppercase
         self.lowercase = lowercase
         self.numbers = numbers
@@ -80,7 +82,7 @@ class Train_Former:
                 Json_Self["Train_dir"][dir_name_abr]["Min_fc"] = min_value
                 Json_Self["Train_dir"][dir_name_abr]["Total_files"] = total
                 Json_Self["Train_dir"][dir_name_abr][i] = file_cnt
-        with open("TrFo_Self.json", 'w') as f:
+        with open(self.json_dir + "TrFo_Self.json", 'w') as f:
             json.dump(Json_Self, f, indent=4, sort_keys=True)
         return print(Json_Self)
 
