@@ -18,6 +18,10 @@ import pprint
 from model.train_former import Train_Former as T
 
 pp = pprint.PrettyPrinter(indent=4)
+def prynt(print_me):
+    import sys
+    sys.stdout.write(print_me)
+    sys.stdout.flush()
 
 
 class Zemodel:
@@ -77,7 +81,7 @@ def postman():
     # refresh dataset nfo
     if flask.request.method == "GET":
         response = dict(request.args)
-        response = response['key'][0]
+        response = response['key']
         if str(response) == "refresh_data":
             count = T(save_dir="./static/Own_classes/save",
                 train_dir="./static/Own_classes/train",
