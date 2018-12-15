@@ -50,6 +50,10 @@ class Zemodel:
 app = flask.Flask(__name__)
 app.debug = True
 ROOT = str(app.root_path)
+count = T(save_dir="./static/Own_classes/save",
+                train_dir="./static/Own_classes/train",
+                json_dir="./model/")
+
 
 def prepare_image(image, target):
     # resize the input image and preprocess it
@@ -81,17 +85,57 @@ def postman():
     # refresh dataset nfo
     if flask.request.method == "GET":
         response = dict(request.args)
+        print(response)
+        # on server bug with response['key'][0], on localhost without - vice versa :(
         response = response['key']
-        if str(response) == "refresh_data":
-            count = T(save_dir="./static/Own_classes/save",
-                train_dir="./static/Own_classes/train",
-                json_dir="./model/")
+        def string_response(response_data):
+            if type(response_data) == list:
+                response = str(response_data[0])
+                return response
+            elif type(response_data) == str:
+                response = response_data
+                return response
+            return 'fail'
+        if string_response(response) == "refresh_data":
             count.accountant()
             with open('./model/TrFo_Self.json') as f:
                 dataset = json.load(f)
             return jsonify(success=True, data=render_template('refresh_dataset.html', value=dataset))
+        elif string_response(response) == "train_fill":
+            count.File_Copy()
+            count.accountant()
+            with open('./model/TrFo_Self.json') as f:
+                dataset = json.load(f)
+            return jsonify(success=True, data=render_template('refresh_dataset.html', value=dataset))
+        elif string_response(response) == "dataset_view":
+            print(dict(request.args))
+            selection = string_response(dict(request.args)['selection'])
+            if selection != "none":
+                sel_id = string_response(dict(request.args)['id'])
+                path_to_choice = count.save_dir + "/" + sel_id + "/" + selection
+                f_count, f_list = count.count_file(path_to_choice)
+                return jsonify(success=True, data=render_template('gallery.html', dire=path_to_choice, files=sorted(f_list)))
+            elif selection == "none":
+                return jsonify(success=True, data=render_template('gallery.html', files=sorted([])))
+            
     return "just_in_case"
-    
+
+#@app.route("/upload/<directory><filename>")
+#def send_image(directory, filename):
+#    print(directory, filename)
+#    return send_from_directory(directory, filename)
+
+
+@app.route("/View", methods=["GET","POST"])
+def dataset_view():
+    res = {}
+    numbr, categories = count.count_dir(count.save_dir)
+    for cat in categories:
+        n, i = count.count_dir(count.save_dir + '/' + cat)
+        res[cat] = sorted(i)
+    return render_template('Dataset_view.html', title="Dataset View",
+                             directory=count.save_dir, value=res)
+
 @app.route("/save", methods=["GET","POST"])
 def save():
     results = []

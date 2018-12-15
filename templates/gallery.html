@@ -1,0 +1,12 @@
+<div class="row" id="dataset_view">
+    {% for file in files %}
+    <div class="col-md-4">
+        <div><span> {{ file }} </span></div>
+        <div id={{ file }}>
+            <img src="{{dire + '/' + file}}">
+        </div>
+
+    </div>
+    {% endfor %}
+
+</div>

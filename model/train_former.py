@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import string
 
 
 class Train_Former:
@@ -43,7 +44,7 @@ class Train_Former:
     def Json_Self(self):
         """Loads a content of .json file onto variable
         file is created by accountant method"""
-        with open("TrFo_Self.json") as f:
+        with open(self.json_dir + "TrFo_Self.json") as f:
             file = json.load(f)
         Json_Self = file
         return Json_Self
@@ -190,6 +191,16 @@ class Train_Former:
         self.Class_former()
         self.Classifajar_former()
         return print("Akapulko")
+        
+    @staticmethod
+    def rename_dir_files(directory):
+        """Finds files with _number at the end and numbers them again"""
+        file_cnt, file_list = Train_Former.count_file(directory)
+        for number, fail in enumerate(sorted(file_list), 1):
+            if str(fail[-5]) in string.digits:
+                fn_root = fail[:-5]
+                new_name = '%s%s.png' % (fn_root, str(number))
+                os.rename(directory + '/' + fail, directory + '/' + new_name)
 
     @staticmethod
     def read_file(dir_c, fname):
@@ -239,6 +250,7 @@ class Train_Former:
 
 if __name__ == "__main__":
     ozka = Train_Former()
-    ozka.accountant()
+    ozka.rename_dir_files('../static/Own_classes/train/lowercase/letter_k')
+#    ozka.accountant()
 #    ozka.File_Copy()
 #    ozka.Class_former()
