@@ -14,10 +14,8 @@ from scipy.misc import imread, imresize
 import json
 import os
 import string
-import pprint
 from model.train_former import Train_Former as T
 
-pp = pprint.PrettyPrinter(indent=4)
 def prynt(print_me):
     import sys
     sys.stdout.write(print_me)
@@ -25,6 +23,7 @@ def prynt(print_me):
 
 
 class Zemodel:
+
     @staticmethod
     def loadmodel(path):
         model = load_model(path)
@@ -107,8 +106,13 @@ def postman():
             with open('./model/TrFo_Self.json') as f:
                 dataset = json.load(f)
             return jsonify(success=True, data=render_template('refresh_dataset.html', value=dataset))
+        elif string_response(response) == "train_purge":
+            count.Purge_Train()
+            count.accountant()
+            with open('./model/TrFo_Self.json') as f:
+                dataset = json.load(f)
+            return jsonify(success=True, data=render_template('refresh_dataset.html', value=dataset))
         elif string_response(response) == "dataset_view":
-            print(dict(request.args))
             selection = string_response(dict(request.args)['selection'])
             if selection != "none":
                 sel_id = string_response(dict(request.args)['id'])
@@ -117,6 +121,13 @@ def postman():
                 return jsonify(success=True, data=render_template('gallery.html', dire=path_to_choice, files=sorted(f_list)))
             elif selection == "none":
                 return jsonify(success=True, data=render_template('gallery.html', files=sorted([])))
+        elif string_response(response) == "delete_file":
+            path = string_response(dict(request.args)['path'])
+            count.delete_file(path)
+            path_to_choice = re.search(r"(.+\/)", str(path)).group(1)[:-1]
+            f_count, f_list = count.count_file(path_to_choice)
+            return jsonify(success=True, data=render_template('gallery.html', dire=path_to_choice, files=sorted(f_list)))
+        
             
     return "just_in_case"
 

@@ -2,7 +2,8 @@ import os
 import re
 import json
 import string
-
+import itertools
+import random
 
 class Train_Former:
     """ Simple Class witch purpose is to manage filecount
@@ -58,7 +59,7 @@ class Train_Former:
         for e in self.save_list:
             fcs_list = []
             dir_cnt, dir_ls = Train_Former.count_dir(e)
-            dir_name_abr = re.search(r"([^/]+$)", str(e)).group(1)
+            dir_name_abr = re.search(r"([^\/]+$)", str(e)).group(1)
             Json_Self["Save_dir"][dir_name_abr] = {}
             Json_Self["Save_dir"][dir_name_abr]["Dir_count"] = dir_cnt
             for i in dir_ls:
@@ -72,7 +73,7 @@ class Train_Former:
         for e in self.train_list:
             fct_list = []
             dir_cnt, dir_ls = Train_Former.count_dir(e)
-            dir_name_abr = re.search(r"([^/]+$)", str(e)).group(1)
+            dir_name_abr = re.search(r"([^\/]+$)", str(e)).group(1)
             Json_Self["Train_dir"][dir_name_abr] = {}
             Json_Self["Train_dir"][dir_name_abr]["Dir_count"] = dir_cnt
             for i in dir_ls:
@@ -85,122 +86,153 @@ class Train_Former:
                 Json_Self["Train_dir"][dir_name_abr][i] = file_cnt
         with open(self.json_dir + "TrFo_Self.json", 'w') as f:
             json.dump(Json_Self, f, indent=4, sort_keys=True)
-        return print(Json_Self)
-
+    
+    @staticmethod
+    def sort_key(x):
+        """Key function for methods like sort()"""
+        key = re.search(r"([^_]+$)", str(x)).group(1)
+        key = eval(re.search(r"(^\d+)", str(key)).group(1))
+        return key
+    
     def Class_former(self):
         """Counts and copies files for
         numbers, upprecase and lowercase classes,
         methods are separate for later and Classifajar
         because they have diferent filetree structure"""
+        self.accountant()
         sjson = self.Json_Self
-        comp_dict_s = {}
-        comp_dict_t = {}
-        for key_s, value_s in sjson["Save_dir"].items():
-            comp_dict_s[key_s] = value_s.get("Min_fc")
-        for key_t, value_t in sjson["Train_dir"].items():
-            comp_dict_t[key_t] = value_t.get("Min_fc")
-        copy_dict = {}
-        for key_s, value_s in comp_dict_s.items():
-            for key_t, value_t in comp_dict_t.items():
-                if key_s == key_t:
-                    if value_s == None:
-                        value_s = 0
-                    elif value_t == None:
-                        value_t = 0
-                    copycount = value_s - value_t
-                    copy_dict[key_s] = copycount
-        for e in self.save_list:
-            dir_name_abr_root = re.search(r"([^/]+$)", str(e)).group(1)
-            dir_cnt, dir_ls = Train_Former.count_dir(e)
-            for key, value in copy_dict.items():
-                if dir_name_abr_root == key:
-                    for i in dir_ls:
-                        dir_name_abr_class = i
-                        save_dir = e + "/" + i
-                        target_dir = self.train_dir + "/" + dir_name_abr_root + "/"\
-                                     + dir_name_abr_class
-                        Min_fc = value #sjson["Save_dir"][dir_name_abr_root]["Min_fc"]
-                        i_fcount, file_list_i = Train_Former.count_file(save_dir)
-                        count_target, file_list = Train_Former.count_file(target_dir)
-                        for c in range(count_target, Min_fc):
-                            for file in file_list_i:
-                                file_nr = re.search(r"([^_]+$)", str(file)).group(1)
-                                file_nr = re.search(r"(.)", str(file_nr)).group(1)
-                                if file_nr == str(c + 1):
-                                    copied_file = Train_Former.read_file(save_dir, file)
-                                    Train_Former.save_file(target_dir, file, copied_file)
-        return print(copy_dict)
-
+        
+        def check_numbering(file_list):
+            for index, file_name in enumerate(sorted(file_list, key=Train_Former.sort_key)):
+                file_nr = re.search(r"([^_]+$)", str(file_name)).group(1)
+                file_nr = eval(re.search(r"(^\d+)", str(file_nr)).group(1))
+                if index + 1 != file_nr:
+                    return False
+                else:
+                    continue
+            return True
+            
+        def fix_numbering(save_dir, train_dir):
+            save_fileset = set()
+            train_fileset = set()
+            Train_Former.rename_dir_files(save_dir)
+            Train_Former.delete_dir_files(train_dir)
+            s_f_count, s_f_list = Train_Former.count_file(save_dir)
+            save_fileset.update(s_f_list)
+            t_f_count, t_f_list = Train_Former.count_file(train_dir)
+            train_fileset.update(t_f_list)
+            return save_fileset, train_fileset
+            
+        for directory in self.save_list:
+            dir_name_abr_root = re.search(r"([^\/]+$)", str(directory)).group(1)
+            dir_cnt, dir_ls = Train_Former.count_dir(directory)
+            min_fc = sjson['Save_dir'][dir_name_abr_root]['Min_fc'] or 0
+            for dire in dir_ls:
+                save_fileset = set()
+                already_copied = set()
+                save_dir = os.path.join(directory, dire)
+                s_f_count, s_f_list = Train_Former.count_file(save_dir)
+                train_dir = os.path.join(self.train_dir + '/' + dir_name_abr_root, dire)
+                t_f_count, t_f_list = Train_Former.count_file(train_dir)
+                save_fileset.update(s_f_list)
+                already_copied.update(t_f_list)
+                if len(save_fileset) < len(already_copied):
+                    save_fileset, already_copied = fix_numbering(save_dir, train_dir)
+                if not check_numbering(list(save_fileset)) or not check_numbering(list(already_copied)):
+                    save_fileset, already_copied = fix_numbering(save_dir, train_dir)
+                candidates = sorted(list(save_fileset - already_copied), key=Train_Former.sort_key)
+                iterations = min_fc - len(already_copied)
+                if iterations > 0:
+                    for it, fail in zip(range(iterations), candidates):
+                        copied_file = Train_Former.read_file(save_dir, fail)
+                        Train_Former.save_file(train_dir, fail, copied_file)
+    
     def Classifajar_former(self):
-        """Counts and copies files for Classifajar class"""
-        sjson = self.Json_Self
-        comp_dict_cl = {}
-        for key_s, value_s in sjson["Save_dir"].items():
-            comp_dict_cl[key_s] = value_s.get("Total_files")
-        classifajar_min = []
-        for e in comp_dict_cl.items():
-            classifajar_min.append(e[1])
-        clasifaj_count = min(classifajar_min)
-        for e in self.save_list:
-            file_set_more = set()
-            dir_name_abr_root = re.search(r"([^/]+$)", str(e)).group(1)
-            dir_cnt, dir_ls = Train_Former.count_dir(e)
-            target_dir = self.train_dir + "/" + "Classifajar" + "/" + dir_name_abr_root
+        """Counts and copies files for Classifajar class,
+            should be used after using Class_former class method.
+        """
+        s_d = self.Json_Self["Save_dir"]
+        cfaj_cnt = min(s_d.items(), key=lambda x: x[1].get("Total_files"))[1].get("Total_files")
+        for path in self.save_list:
+            already_copied = set()
+            dir_name_abr_root = re.search(r"([^\/]+$)", str(path)).group(1)
+            dir_cnt, dir_ls = Train_Former.count_dir(path)
+            target_dir = self.train_dir + "/Classifajar/" + dir_name_abr_root
             count_target, file_list = Train_Former.count_file(target_dir)
-            itert = range(clasifaj_count)
-            if len(itert) > len(dir_ls):
-                #itert = len(range(count_target, clasifaj_count))
-                times = (len(itert) // len(dir_ls)) +1
-                dir_ls *= times
-            if count_target < clasifaj_count:
-                for c, i in zip(itert, dir_ls):
-                    save_dir = e + "/" + i
-                    i_fcount, file_list_i = Train_Former.count_file(save_dir)
-                    for file in file_list_i:
-                        file_nr = re.search(r"([^_]+$)", str(file)).group(1)
-                        file_nr = re.search(r"(.)", str(file_nr)).group(1)
-                        nook = str(int(c // dir_cnt))
-                        nook_const = str(int(clasifaj_count // dir_cnt))
-                        if file_nr > nook_const:
-                            file_set_more.add(save_dir + "/" + file)
-                        if eval(file_nr) == eval(nook) + 1:
-                            copied_file = Train_Former.read_file(save_dir, file)
-                            Train_Former.save_file(target_dir, file, copied_file)
-            # code below fixes a bug where in Classifajar
-            # numbers having less classes
-            # get out of file range in some dirs
-            count_target, file_list = Train_Former.count_file(target_dir)
-            if count_target < clasifaj_count:
-                difference = clasifaj_count - count_target
-                for cn, file in zip(range(difference), file_set_more):
-                    save_dir = re.search(r"(.*/)", str(file)).group(1)
-                    file = re.search(r"([^/]+$)", str(file)).group(1)
-                    file_nr = re.search(r"([^_]+$)", str(file)).group(1)
-                    file_nr = re.search(r"(.)", str(file_nr)).group(1)
-                    nook_const = str(int(clasifaj_count // dir_cnt))
-                    if eval(file_nr) > eval(nook_const):
-                        copied_file = Train_Former.read_file(save_dir, file)
-                        Train_Former.save_file(target_dir, file, copied_file)
-        return print(comp_dict_cl)
+            already_copied.update(file_list)
+            itert = cfaj_cnt - count_target
+            if itert > 0:
+                for it, dir_s in zip(range(itert), itertools.cycle(sorted(dir_ls))):
+                    copied = False
+                    save_dir = path + "/" + dir_s
+                    s_fcount, s_flist = Train_Former.count_file(save_dir)
+                    for i, fail in enumerate(sorted(s_flist, key=Train_Former.sort_key)):
+                        if fail not in already_copied:
+                            copied_file = Train_Former.read_file(save_dir, fail)
+                            copied = Train_Former.save_file(target_dir, fail, copied_file)
+                            already_copied.add(fail)
+                            break
+                        if i == len(s_flist) - 1 and not copied:
+                            while not copied:
+                                random_i = random.randint(0, len(dir_ls) - 1)
+                                dir_ss = dir_ls[random_i]
+                                save_dirs = path + "/" + dir_ss
+                                ss_fcount, ss_flist = Train_Former.count_file(save_dirs)
+                                for failss in sorted(ss_flist, key=Train_Former.sort_key):
+                                    if failss not in already_copied and not copied:
+                                        copied_files = Train_Former.read_file(save_dirs, failss)
+                                        copied = Train_Former.save_file(target_dir, failss, copied_files)
+                                        already_copied.add(failss)
+                                        break
+    
+    def Purge_Train(self):
+        """Deletes all files in train directory"""
+        for dir_t in self.train_list:
+            dir_cnt, dir_ls = Train_Former.count_dir(dir_t)
+            for dir_spec in dir_ls:
+                dir_path = os.path.join(dir_t, dir_spec)
+                Train_Former.delete_dir_files(dir_path)
 
     def File_Copy(self):
         """Main class method, its a launcher where methods are called
-         in correct order to count and copy files, if you wish only to
-          make .json report use accountant method"""
-        self.accountant()
+           in correct order to count and copy files, if you only wish to
+           make .json report use accountant method
+        """
         self.Class_former()
         self.Classifajar_former()
-        return print("Akapulko")
+        return print("Train directory filled.")
+    
+    @staticmethod
+    def delete_dir_files(directory):
+        """Deletes files from given directory"""
+        file_cnt, file_list = Train_Former.count_file(directory)
+        for fail in file_list:
+            name = os.path.join(directory, fail)
+            os.remove(name)
+            print('File %s deleted.' % name)
+            
+    @staticmethod
+    def delete_file(path_to_file):
+        """Deletes a single file at given path"""
+        os.remove(path_to_file)
+        directory = re.search(r"(.+\/)", str(path_to_file)).group(1)[:-1]
+        Train_Former.rename_dir_files(directory)
+        print('File %s deleted.' % path_to_file)
         
     @staticmethod
     def rename_dir_files(directory):
         """Finds files with _number at the end and numbers them again"""
         file_cnt, file_list = Train_Former.count_file(directory)
         for number, fail in enumerate(sorted(file_list), 1):
-            if str(fail[-5]) in string.digits:
-                fn_root = fail[:-5]
-                new_name = '%s%s.png' % (fn_root, str(number))
-                os.rename(directory + '/' + fail, directory + '/' + new_name)
+            file_nr = re.search(r"([^_]+$)", str(fail)).group(1)
+            file_nr = re.search(r"(^\d+)", str(file_nr)).group(1)
+            fn_root = re.search(r"(^[a-zA-Z]+[_][a-zA-Z0-9]+[_])", str(fail)).group(1)
+            new_name = 'c_%s%s.png' % (fn_root, str(number))
+            os.rename(directory + '/' + fail, directory + '/' + new_name)
+        file_cnt2, file_list2 = Train_Former.count_file(directory)
+        for fail2 in sorted(file_list2):
+            new_name2 = fail2[2:]
+            os.rename(directory + '/' + fail2, directory + '/' + new_name2)
 
     @staticmethod
     def read_file(dir_c, fname):
@@ -213,14 +245,14 @@ class Train_Former:
         return output
 
     @staticmethod
-    def save_file(dir_d, fname, file):
+    def save_file(dir_d, fname, file_d):
         """Saves given file with given name to given destination
         if destination doesnt exist, creates directory"""
         if os.path.exists(dir_d) == False:
             os.makedirs(dir_d)
         with open(os.path.join(dir_d, fname), 'wb') as output:
-            output.write(file)
-        return print("File saved: {}/ {}".format(dir_d, fname))
+            output.write(file_d)
+        return True
 
     @staticmethod
     def count_dir(dir_d):
@@ -250,7 +282,9 @@ class Train_Former:
 
 if __name__ == "__main__":
     ozka = Train_Former()
-    ozka.rename_dir_files('../static/Own_classes/train/lowercase/letter_k')
+    ozka.Purge_Train()
+    
+#    ozka.Classifajar_former()
 #    ozka.accountant()
-#    ozka.File_Copy()
+    ozka.File_Copy()
 #    ozka.Class_former()

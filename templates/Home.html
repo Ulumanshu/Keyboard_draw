@@ -80,7 +80,6 @@
         $('#result').text('Image saved');
         $(".Correct_Button").hide("slow");
         var correct_class = class_data;
-        console.log(correct_class);
         var img = canvasObj.toDataURL();
         $.ajax({
             type: "POST",
@@ -101,33 +100,8 @@
         $("#input_wrong").show("slow");
         $(".Wrong_Button").hide("slow");
     };
-    /*///////////////////////////////////////////////////////////////////
-    function print_result_nobutt(data){
-        console.log(data);
-        var a = 0;
-        var val1 = "";
-        var val2 = "";
-        data.forEach(function(element){
-            a ++;
-            if(a < 3){
-            val1 += element;
-            val1 += " ";
-            console.log("a<3", val1);
-            };
-            if(a > 2){
-                val2 += element;
-                val2 += " ";
-                console.log("a>2", val2);
-            };
-        });
-        console.log(val1, "-", val2);
-        $('#result').html('File saved: ' + val1 + "<br>" + ' File saved: ' + val2);
-        ///$('#result').text('File saved: ' + val2);
-    }; ///Used with Flask_Keras.py///
-    *////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////
     function print_result_nobutt(data){
-        console.log(data);
         var val1 = "";
         data.forEach(function(element){
             val1 += element;

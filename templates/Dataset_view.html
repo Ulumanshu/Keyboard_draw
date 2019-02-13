@@ -45,6 +45,21 @@ function choice(id, event){
     });
 };
 ///////////////////////////////////////////////////////////////////
+function delete_file(id, event){
+    event.preventDefault()
+    console.log(id, event)
+    var tagd = {
+            "key": "delete_file",
+            "path": id.dataset.path
+            };
+    $.ajax({
+        type: "GET",
+        url: $SCRIPT_ROOT + "/postman",
+        data: tagd,
+        success: refresh_div,
+    });
+};
+///////////////////////////////////////////////////////////////////
 function refresh_div(data){
     $('#dataset_view').replaceWith(data.data);
 };

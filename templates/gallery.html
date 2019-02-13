@@ -2,11 +2,16 @@
     {% for file in files %}
     <div class="col-md-4">
         <div><span> {{ file }} </span></div>
-        <div id={{ file }}>
+        <div>
             <img src="{{dire + '/' + file}}">
         </div>
-
+        <div align="center" style="margin:20px;">
+            <a class="btn btn-success Delete_file" onclick="delete_file(this, event)" id="{{file}}" data-path="{{dire + '/' + file}}" href="#" role="button">DELETE</a>
+        </div>
     </div>
+    <script type="text/javascript">
+     //$("#{{file}}").click(delete_file(this, event));
+    </script>
     {% endfor %}
 
 </div>
